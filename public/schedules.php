@@ -65,6 +65,7 @@ function e($value): string
                         <th>Arrival</th>
                         <th>Fare (RM)</th>
                         <th>Status</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
 
@@ -89,6 +90,8 @@ function e($value): string
                             <td><?= e($schedule['arrival_datetime']) ?></td>
                             <td><?= e(number_format((float)$schedule['base_fare'], 2)) ?></td>
                             <td><?= e(ucfirst($schedule['status'])) ?></td>
+                            <td><a href="schedule-edit.php?id=<?= e($schedule['schedule_id']) ?>"
+                                class="btn-edit">Edit</a></td>
                         </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>

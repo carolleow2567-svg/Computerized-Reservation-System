@@ -40,4 +40,14 @@ class ScheduleController
     {
         return $this->scheduleModel->isActiveStation($id);
     }
+
+    public function show(int $id): ?array
+    {
+        return $this->scheduleModel->getById($id);
+    }
+
+    public function update(int $id, array $data): bool
+    {
+        return $this->scheduleModel->update($id, $data);
+    }
 }

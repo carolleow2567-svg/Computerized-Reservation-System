@@ -86,4 +86,42 @@ class Schedule
 
         return (int) $stmt->fetchColumn() > 0;
     }
+
+    public function getById(int $id): ?array
+    {
+        $stmt = $this->db->prepare(
+          "SELECT * FROM schedules WHERE schedule_id = :id"
+        );
+        $stmt->execute(['id' => $id]);
+
+        $schedule = $stmt->fetch();
+
+        return $schedule ?: null;
+    }
+
+    public function update(int $id, array $data): bool
+    {
+        $sql = "UPDATE schedules
+                SET train_id = :train_id,
+                    origin_station_id = :origin,
+                    destination_station_id = :destination,
+                    departure_datetime = :departure,
+                    arrival_datetime = :arrival,
+                    base_fare = :fare,
+                    status = :status
+                WHERE schedule_id = :id";
+
+        $stmt = $this->db->prepare($sql);
+
+        return $stmt->execute([
+            'train_id' => $data['train_id'],
+            'origin' => $data['origin_station_id'],
+            'destination' => $data['destination_station_id'],
+            'departure' => $data['departure_datetime'],
+            'arrival' => $data['arrival_datetime'],
+            'fare' => $data['base_fare'],
+            'status' => $data['status'],
+            'id' => $id
+        ]);
+    }
 }
