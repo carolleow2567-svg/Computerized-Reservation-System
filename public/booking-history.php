@@ -127,7 +127,7 @@ $filters = $data['filters'];
                                       onsubmit="return confirm('Request cancellation for this booking?');">
                                     <input type="hidden" name="booking_id" value="<?= e($b['booking_id']) ?>">
                                     <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
-                                    <button type="submit">Request Cancellation</button>
+                                    <button type="submit">Cancel Booking</button>
                                 </form>
                             <?php endif; ?>
                         </td>
