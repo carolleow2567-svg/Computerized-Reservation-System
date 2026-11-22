@@ -256,3 +256,13 @@ td {
     border-radius: 6px;
     margin-bottom: 20px;
 }
+
+.form-group select,
+.form-group input[type="datetime-local"],
+.form-group input[type="number"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 14px;
+}
