@@ -41,8 +41,15 @@ class TrainController
         return $this->trainModel->deactivate($id);
     }
 
+    // Check duplicate train number, excluding the current train
     public function existsByTrainNumber(string $number, ?int $excludeId = null): bool
     {
         return $this->trainModel->existsByTrainNumber($number, $excludeId);
+    }
+
+    // Check if a train has active bookings
+    public function hasActiveBookings(int $id): bool
+    {
+        return $this->trainModel->hasActiveBookings($id);
     }
 }

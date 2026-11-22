@@ -108,4 +108,20 @@ class Train
 
         return (int) $stmt->fetchColumn() > 0;
     }
+
+    // Check whether a train has pending or confirmed bookings
+    public function hasActiveBookings(int $id): bool
+    {
+        $sql = "SELECT COUNT(*)
+                FROM bookings b
+                INNER JOIN schedules s
+                    ON b.schedule_id = s.schedule_id
+                WHERE s.train_id = :id
+                AND b.booking_status IN ('pending', 'confirmed')";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id' => $id]);
+
+        return (int) $stmt->fetchColumn() > 0;
+    }
 }

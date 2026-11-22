@@ -6,6 +6,10 @@ require_once __DIR__ . '/../app/config/database.php';
 require_once __DIR__ . '/../app/controllers/TrainController.php';
 
 $controller = new TrainController($pdo);
+// Generate CSRF token if not already set
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 $trains = $controller->index();
 
 function e($value): string
@@ -30,6 +34,20 @@ function e($value): string
 <body>
 
 <div class="container">
+    
+    <?php if (!empty($_SESSION['success'])): ?>
+        <div class="success-message">
+            <?= e($_SESSION['success']) ?>
+        </div>
+        <?php unset($_SESSION['success']); ?>
+    <?php endif; ?>
+
+    <?php if (!empty($_SESSION['error'])): ?>
+        <div class="error-message">
+            <?= e($_SESSION['error']) ?>
+        </div>
+        <?php unset($_SESSION['error']); ?>
+    <?php endif; ?>
 
     <header class="page-header">
         <div>
@@ -106,6 +124,19 @@ function e($value): string
                                     class="btn-edit">
                                     Edit
                                 </a>
+
+                                <?php if ($train['status'] === 'active'): ?>
+                                    <form method="POST"
+                                          action="train-deactivate.php"
+                                          style="display:inline;"
+                                          onsubmit="return confirm('Are you sure you want to deactivate this train?');">
+
+                                        <input type="hidden" name="train_id"value="<?= e($train['train_id']) ?>">
+                                        <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                                        <button type="submit" class="btn-deactivate">Deactivate</button>
+                                    </form>
+                                    
+                                <?php endif; ?>
                             </td>
 
                         </tr>
