@@ -36,4 +36,30 @@ class BookingController
 
         return ['bookings' => $bookings, 'filters' => $filters];
     }
+
+    // Returns ticket data, or null if the booking does not exist OR is not the user's.
+    // Both cases look identical to the caller so booking IDs cannot be probed.
+    public function eticket(int $bookingId, int $userId): ?array
+    {
+        $ticket = $this->booking->getTicketForUser($bookingId, $userId);
+
+        if ($ticket === null || $ticket['booking_status'] !== 'confirmed') {
+            return null;
+        }
+
+        $ticket['verification_token'] =
+            $ticket['verification_token'] ?: $this->booking->ensureToken($bookingId, $userId);
+
+        $ticket['passengers'] = $this->booking->getPassengers($bookingId);
+
+        return $ticket;
+    }
+
+    public function cancel(int $bookingId, int $userId, string $reason): ?string
+    {
+        $reason = mb_substr(trim($reason), 0, 255);
+
+        return $this->booking->requestCancellation($bookingId, $userId, $reason);
+    }
+    
 }
