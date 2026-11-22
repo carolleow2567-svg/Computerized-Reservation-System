@@ -40,4 +40,9 @@ class TrainController
     {
         return $this->trainModel->deactivate($id);
     }
+
+    public function existsByTrainNumber(string $number, ?int $excludeId = null): bool
+    {
+        return $this->trainModel->existsByTrainNumber($number, $excludeId);
+    }
 }

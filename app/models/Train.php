@@ -85,4 +85,27 @@ class Train
 
         return $stmt->execute(['id' => $id]);
     }
+
+    // Check duplicate train number, excluding the current train
+    public function existsByTrainNumber(string $number, ?int $excludeId = null): bool
+    {
+        $sql = "SELECT COUNT(*) FROM trains
+             WHERE train_number = :number";
+
+        if ($excludeId !== null) {
+            $sql .= " AND train_id != :id";
+        }
+
+        $stmt = $this->db->prepare($sql);
+
+        $params = ['number' => $number];
+
+        if ($excludeId !== null) {
+        $params['id'] = $excludeId;
+        }
+
+        $stmt->execute($params);
+
+        return (int) $stmt->fetchColumn() > 0;
+    }
 }
