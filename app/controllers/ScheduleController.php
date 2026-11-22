@@ -50,4 +50,14 @@ class ScheduleController
     {
         return $this->scheduleModel->update($id, $data);
     }
+
+    public function hasConfirmedBookings(int $id): bool
+    {
+        return $this->scheduleModel->hasConfirmedBookings($id);
+    }
+
+    public function cancel(int $id): bool
+    {
+        return $this->scheduleModel->cancel($id);
+    }
 }

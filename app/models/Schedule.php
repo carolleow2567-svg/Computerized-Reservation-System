@@ -124,4 +124,28 @@ class Schedule
             'id' => $id
         ]);
     }
+
+    public function hasConfirmedBookings(int $id): bool
+    {
+        $sql = "SELECT COUNT(*) FROM bookings
+                WHERE schedule_id = :id
+                AND booking_status = 'confirmed'";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id' => $id]);
+
+        return (int) $stmt->fetchColumn() > 0;
+    }
+
+    public function cancel(int $id): bool
+    {
+        $sql = "UPDATE schedules
+                SET status = 'cancelled'
+                WHERE schedule_id = :id
+                AND status IN ('scheduled', 'delayed')";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id' => $id]);
+
+        return $stmt->rowCount() > 0;
+    }
 }

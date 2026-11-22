@@ -2,6 +2,11 @@
 
 session_start();
 
+// Generate CSRF token if not already set
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 require_once __DIR__ . '/../app/config/database.php';
 require_once __DIR__ . '/../app/controllers/ScheduleController.php';
 
@@ -33,6 +38,13 @@ function e($value): string
             <?= e($_SESSION['success']) ?>
         </div>
         <?php unset($_SESSION['success']); ?>
+    <?php endif; ?>
+
+    <?php if (!empty($_SESSION['error'])): ?>
+        <div class="error-message">
+            <?= e($_SESSION['error']) ?>
+        </div>
+        <?php unset($_SESSION['error']); ?>
     <?php endif; ?>
 
     <header class="page-header">
@@ -89,9 +101,26 @@ function e($value): string
                             <td><?= e($schedule['departure_datetime']) ?></td>
                             <td><?= e($schedule['arrival_datetime']) ?></td>
                             <td><?= e(number_format((float)$schedule['base_fare'], 2)) ?></td>
-                            <td><?= e(ucfirst($schedule['status'])) ?></td>
+                            <td><span class="schedule-status <?= e($schedule['status']) ?>">
+                                <?= e(ucfirst($schedule['status'])) ?></span></td>
                             <td><a href="schedule-edit.php?id=<?= e($schedule['schedule_id']) ?>"
-                                class="btn-edit">Edit</a></td>
+                                    class="btn-edit">Edit</a>
+                                    
+                                <?php if (in_array($schedule['status'], ['scheduled', 'delayed'], true)): ?>
+                                        
+                                    <form method="POST"
+                                          action="schedule-cancel.php"
+                                          style="display:inline;"
+                                          onsubmit="return confirm('Cancel this schedule?');">
+                                              
+                                        <input type="hidden" name="schedule_id" value="<?= e($schedule['schedule_id']) ?>">
+                                        <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                                        <button type="submit" class="btn-deactivate">
+                                            Cancel
+                                        </button>
+                                    </form>
+                                <?php endif; ?>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>
