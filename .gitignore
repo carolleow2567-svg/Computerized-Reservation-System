@@ -1,2 +1,4 @@
 # Local database credentials
 /app/config/database.php
+database/local_m4_test.sql
+public/test-login.php
