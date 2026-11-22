@@ -62,9 +62,18 @@ $verifyUrl = 'http://' . $_SERVER['HTTP_HOST']
 </div>
 
 <div class="ticket">
-    <h1>CRS E-Ticket</h1>
+    <h1>RailMY E-Ticket</h1>
     <p>Booking Reference: <strong><?= e($ticket['booking_reference']) ?></strong></p>
     <p>Status: <strong><?= e(ucfirst($ticket['booking_status'])) ?></strong></p>
+
+    <?php if (!$ticket['qr_active']): ?>
+        <p style="color:red;">
+            <strong>
+                Cancellation <?= e($ticket['cancel_status']) ?>.
+                This ticket is no longer valid for travel.
+            </strong>
+        </p>
+    <?php endif; ?>
 
     <table>
         <tr><th>Train</th><td><?= e($ticket['train_number']) ?> - <?= e($ticket['train_name']) ?> (<?= e($ticket['train_type']) ?>)</td></tr>
@@ -86,11 +95,14 @@ $verifyUrl = 'http://' . $_SERVER['HTTP_HOST']
         <?php endforeach; ?>
     </table>
 
-    <h3>Verification QR</h3>
-    <div id="qrcode"></div>
-    <p><small>Scan at the station gate. This code contains no personal information.</small></p>
+    <?php if ($ticket['qr_active']): ?>
+        <h3>Verification QR</h3>
+        <div id="qrcode"></div>
+        <p><small>Scan at the station gate. This code contains no personal information.</small></p>
+    <?php endif; ?>
 </div>
 
+<?php if ($ticket['qr_active']): ?>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
     new QRCode(document.getElementById('qrcode'), {
@@ -99,6 +111,7 @@ $verifyUrl = 'http://' . $_SERVER['HTTP_HOST']
         height: 160
     });
 </script>
+<?php endif; ?>
 
 </body>
 </html>

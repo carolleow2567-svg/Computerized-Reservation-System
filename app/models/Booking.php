@@ -79,7 +79,12 @@ class Booking
                        t.train_type,
                        o.station_name AS origin_name,
                        d.station_name AS destination_name,
-                       u.full_name AS account_name
+                       u.full_name AS account_name,
+                        (SELECT cr.request_status
+                            FROM cancellation_requests cr
+                            WHERE cr.booking_id = b.booking_id
+                            ORDER BY cr.request_id DESC
+                            LIMIT 1) AS cancel_status
                 FROM bookings b
                 INNER JOIN schedules s ON b.schedule_id = s.schedule_id
                 INNER JOIN trains t ON s.train_id = t.train_id

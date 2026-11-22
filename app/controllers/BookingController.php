@@ -50,6 +50,13 @@ class BookingController
         $ticket['verification_token'] =
             $ticket['verification_token'] ?: $this->booking->ensureToken($bookingId, $userId);
 
+            // The QR is valid only if there is no active cancellation request
+            $ticket['qr_active'] = !in_array(
+                $ticket['cancel_status'],
+                ['pending', 'approved', 'refunded'],
+                true
+            );
+
         $ticket['passengers'] = $this->booking->getPassengers($bookingId);
 
         return $ticket;
