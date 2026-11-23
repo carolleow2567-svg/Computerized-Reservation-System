@@ -38,10 +38,14 @@ class Booking
     }
 
     // Retrieve a booking by ID
+    // Retrieve a booking with its schedule status
     public function getById(int $id): ?array
     {
         $stmt = $this->db->prepare(
-            "SELECT * FROM bookings WHERE booking_id = :id"
+            "SELECT b.*, s.status AS schedule_status
+             FROM bookings b
+             INNER JOIN schedules s ON b.schedule_id = s.schedule_id
+             WHERE b.booking_id = :id"
         );
 
         $stmt->execute(['id' => $id]);

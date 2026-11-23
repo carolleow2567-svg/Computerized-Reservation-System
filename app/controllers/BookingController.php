@@ -23,6 +23,34 @@ class BookingController
 
     public function updateStatus(int $id, string $status): bool
     {
+        $booking = $this->bookingModel->getById($id);
+
+        if (!$booking) {return false;}
+
+        $currentStatus = $booking['booking_status'];
+
+        // Prevent changes to cancelled bookings
+        if ($currentStatus === 'cancelled') {
+            return false;
+        }
+
+        // Prevent invalid status transitions
+        if ($currentStatus === 'pending') {
+            if (!in_array($status, ['confirmed', 'cancelled'], true)) {
+                return false;
+            }
+        } elseif ($currentStatus === 'confirmed') {
+            if ($status !== 'cancelled') {
+                return false;
+            }
+        } else {return false;}
+
+        // Prevent confirmation of cancelled schedules
+        if ($status === 'confirmed'
+            && $booking['schedule_status'] === 'cancelled') {
+            return false;
+        }
+
         return $this->bookingModel->updateStatus($id, $status);
     }
 }
