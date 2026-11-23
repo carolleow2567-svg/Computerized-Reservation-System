@@ -69,4 +69,33 @@ class BookingController
         return $this->booking->requestCancellation($bookingId, $userId, $reason);
     }
     
+        // Gate verification: returns a result with a reason, never personal data.
+    public function verify(string $token): array
+    {
+        // A valid token is exactly 64 hex characters
+        if (!preg_match('/^[a-f0-9]{64}$/', $token)) {
+            return ['valid' => false, 'reason' => 'Invalid ticket.'];
+        }
+
+        $row = $this->booking->getByToken($token);
+
+        if ($row === null) {
+            return ['valid' => false, 'reason' => 'Invalid ticket.'];
+        }
+
+        if ($row['booking_status'] !== 'confirmed') {
+            return ['valid' => false, 'reason' => 'Booking is not confirmed.', 'info' => $row];
+        }
+
+        if (in_array($row['cancel_status'], ['pending', 'approved', 'refunded'], true)) {
+            return ['valid' => false, 'reason' => 'Booking has been cancelled or is being cancelled.', 'info' => $row];
+        }
+
+        if (strtotime($row['arrival_datetime']) < time()) {
+            return ['valid' => false, 'reason' => 'This trip has already finished.', 'info' => $row];
+        }
+
+        return ['valid' => true, 'reason' => 'Ticket is valid.', 'info' => $row];
+    }
+
 }

@@ -180,4 +180,34 @@ class Booking
 
         return null;
     }
+
+        // Used by the gate verification page. Looks up by random token only.
+    public function getByToken(string $token): ?array
+    {
+        $sql = "SELECT b.booking_reference,
+                       b.booking_status,
+                       s.departure_datetime,
+                       s.arrival_datetime,
+                       t.train_number,
+                       o.station_name AS origin_name,
+                       d.station_name AS destination_name,
+                       (SELECT cr.request_status
+                          FROM cancellation_requests cr
+                         WHERE cr.booking_id = b.booking_id
+                         ORDER BY cr.request_id DESC
+                         LIMIT 1) AS cancel_status
+                FROM bookings b
+                INNER JOIN schedules s ON b.schedule_id = s.schedule_id
+                INNER JOIN trains t ON s.train_id = t.train_id
+                INNER JOIN stations o ON s.origin_station_id = o.station_id
+                INNER JOIN stations d ON s.destination_station_id = d.station_id
+                WHERE b.verification_token = :token";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['token' => $token]);
+
+        $row = $stmt->fetch();
+
+        return $row ?: null;
+    }
 }
