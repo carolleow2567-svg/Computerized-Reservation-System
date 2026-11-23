@@ -39,8 +39,17 @@ class Booking
         $params = ['uid' => $userId];
 
         if (!empty($filters['keyword'])) {
-            $sql .= " AND b.booking_reference LIKE :keyword";
-            $params['keyword'] = '%' . $filters['keyword'] . '%';
+            $sql .= " AND (b.booking_reference LIKE :kw1
+                        OR t.train_number LIKE :kw2
+                        OR t.train_name LIKE :kw3
+                        OR o.station_name LIKE :kw4
+                        OR d.station_name LIKE :kw5)";
+            $like = '%' . $filters['keyword'] . '%';
+            $params['kw1'] = $like;
+            $params['kw2'] = $like;
+            $params['kw3'] = $like;
+            $params['kw4'] = $like;
+            $params['kw5'] = $like;
         }
 
         if (!empty($filters['status'])) {
@@ -159,8 +168,8 @@ class Booking
         if ($row['booking_status'] !== 'confirmed') {
             return 'Only confirmed bookings can be cancelled.';
         }
-        if (strtotime($row['departure_datetime']) <= time()) {
-            return 'This trip has already departed.';
+        if (strtotime($row['departure_datetime']) <= time() + 48 * 3600) {
+            return 'Cancellation is closed: the train departs in less than 48 hours.';
         }
 
         $stmt = $this->db->prepare(

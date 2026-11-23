@@ -1,0 +1,215 @@
+@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap');
+
+:root {
+    --navy: #0b2a5b;
+    --navy-dark: #081f44;
+    --orange: #f5a31a;
+    --bg: #f4f3ee;
+    --card: #ffffff;
+    --border: #d9dee8;
+    --text: #0b2a5b;
+    --muted: #5d6b82;
+    --green-bg: #dcf5e6;
+    --green: #17703c;
+    --amber-bg: #fdefd0;
+    --amber: #8a5a00;
+    --red-bg: #fde2e2;
+    --red: #b42318;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Figtree', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+}
+
+/* ---------- Top navigation ---------- */
+.topbar {
+    background: var(--navy);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+    height: 56px;
+}
+.topbar .brand { font-weight: 700; font-size: 18px; margin-right: 28px; color: #fff; text-decoration: none; }
+.topbar .brand span { color: var(--orange); }
+.topbar nav { display: flex; gap: 6px; align-items: center; }
+.topbar nav a {
+    color: #fff; text-decoration: none; font-size: 14px; font-weight: 600;
+    padding: 8px 14px; border-radius: 8px;
+}
+.topbar nav a:hover { background: rgba(255,255,255,.12); }
+.topbar nav a.active { background: rgba(255,255,255,.2); }
+.topbar .user { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14px; }
+.avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--orange); color: var(--navy);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+}
+
+/* ---------- Layout ---------- */
+.container { width: 92%; max-width: 920px; margin: 32px auto; }
+.page-header {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 16px; margin-bottom: 18px;
+}
+.page-header h1 { font-size: 28px; }
+
+/* ---------- Buttons ---------- */
+.btn {
+    display: inline-block; padding: 10px 18px; border-radius: 8px;
+    font-family: inherit; font-size: 14px; font-weight: 700;
+    text-decoration: none; cursor: pointer; border: 1px solid transparent;
+}
+.btn-orange { background: var(--orange); color: var(--navy); }
+.btn-orange:hover { background: #e19610; }
+.btn-navy { background: var(--navy); color: #fff; }
+.btn-navy:hover { background: var(--navy-dark); }
+.btn-outline { background: #fff; color: var(--navy); border-color: var(--border); }
+.btn-outline:hover { background: #f1f4fa; }
+.btn-danger { background: #fff; color: var(--red); border-color: #f0b4b0; }
+.btn-danger:hover { background: var(--red-bg); }
+
+/* ---------- Messages ---------- */
+.success-message, .error-message {
+    padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; font-weight: 600;
+}
+.success-message { background: var(--green-bg); color: var(--green); }
+.error-message { background: var(--red-bg); color: var(--red); }
+
+/* ---------- Tabs ---------- */
+.tabs { display: flex; gap: 28px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+.tabs a {
+    padding: 10px 2px; font-size: 14px; font-weight: 700; color: var(--muted);
+    text-decoration: none; border-bottom: 3px solid transparent; margin-bottom: -1px;
+}
+.tabs a.active { color: var(--navy); border-bottom-color: var(--orange); }
+
+/* ---------- Filter bar ---------- */
+.filter-bar {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px; display: grid; grid-template-columns: 2fr 1fr auto; gap: 14px;
+    align-items: end; margin-bottom: 18px;
+}
+.filter-bar label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; }
+.filter-bar input, .filter-bar select {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--border);
+    border-radius: 8px; font-family: inherit; font-size: 14px; color: var(--navy); background: #fff;
+}
+.filter-actions { display: flex; gap: 8px; }
+
+/* ---------- Booking cards ---------- */
+.booking-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 14px;
+    display: flex; justify-content: space-between; align-items: center; gap: 20px;
+}
+.booking-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 12px; color: var(--muted); }
+.booking-card h2 { font-size: 18px; margin-bottom: 6px; }
+.booking-card .sub { font-size: 13px; color: var(--muted); margin-bottom: 2px; }
+.booking-card .note { font-size: 12px; color: var(--muted); margin-top: 6px; }
+.booking-side { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: flex-end; }
+.fare { text-align: right; }
+.fare small { display: block; font-size: 11px; color: var(--muted); }
+.fare strong { font-size: 20px; }
+.booking-side form { display: inline; }
+.empty-box {
+    background: var(--card); border: 1px dashed var(--border); border-radius: 12px;
+    text-align: center; padding: 40px; color: var(--muted);
+}
+.policy { font-size: 12px; color: var(--muted); margin-top: 8px; }
+
+/* ---------- Status chips ---------- */
+.chip {
+    display: inline-block; padding: 3px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 700;
+}
+.chip.confirmed { background: var(--green-bg); color: var(--green); }
+.chip.pending   { background: var(--amber-bg); color: var(--amber); }
+.chip.cancelled { background: var(--red-bg); color: var(--red); }
+
+/* ---------- E-ticket ---------- */
+.ticket-actions { display: flex; gap: 10px; }
+.ticket {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    display: grid; grid-template-columns: 1fr 230px; overflow: hidden;
+    box-shadow: 0 4px 16px rgba(11,42,91,.08);
+}
+.ticket-main { min-width: 0; }
+.ticket-head {
+    background: var(--navy); color: #fff; padding: 14px 22px;
+    display: flex; justify-content: space-between; align-items: center; font-weight: 700;
+}
+.ticket-body { padding: 20px 22px; }
+.route { display: flex; align-items: center; gap: 14px; margin-bottom: 4px; }
+.route .city { font-size: 22px; font-weight: 700; }
+.route .line { flex: 1; height: 2px; background: var(--orange); }
+.route-sub { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 20px; }
+.details { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+.details dt { font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 4px; }
+.details dd { font-size: 14px; font-weight: 700; }
+.ticket table { width: 100%; border-collapse: collapse; }
+.ticket th {
+    text-align: left; font-size: 10px; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--muted); padding: 8px 0; border-bottom: 1px solid var(--border);
+}
+.ticket td { padding: 10px 0; font-size: 14px; font-weight: 600; border-bottom: 1px solid var(--border); }
+.ticket-note { font-size: 12px; color: var(--muted); margin-top: 14px; }
+.ticket-qr {
+    border-left: 2px dashed var(--border); padding: 24px 16px; text-align: center;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+}
+#qrcode { display: inline-block; }
+.qr-ref { font-weight: 700; font-size: 13px; }
+.qr-note { font-size: 11px; color: var(--muted); }
+.invalid-box {
+    background: var(--red-bg); color: var(--red); font-weight: 700; font-size: 14px;
+    padding: 12px 16px; border-radius: 8px; margin-bottom: 18px;
+}
+.ticket-footer-btns { display: flex; gap: 10px; margin-top: 18px; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 720px) {
+    .filter-bar { grid-template-columns: 1fr; }
+    .booking-card { flex-direction: column; align-items: flex-start; }
+    .booking-side { justify-content: flex-start; }
+    .fare { text-align: left; }
+    .ticket { grid-template-columns: 1fr; }
+    .ticket-qr { border-left: 0; border-top: 2px dashed var(--border); }
+    .details { grid-template-columns: repeat(2, 1fr); }
+    .topbar nav { display: none; }
+}
+
+/* ---------- Print ---------- */
+@media print {
+    @page { margin: 12mm; }
+
+    /* Force background colours (navy header, chips) to be printed */
+    * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .topbar, .no-print { display: none !important; }
+
+    body { background: #fff; }
+
+    .container { width: 100%; max-width: none; margin: 0; }
+    .page-header { margin-bottom: 12px; }
+
+    /* Keep the two-column ticket layout on paper */
+    .ticket {
+        grid-template-columns: 1fr 200px !important;
+        box-shadow: none;
+        break-inside: avoid;
+    }
+    .ticket-qr { border-left: 2px dashed var(--border) !important; border-top: 0 !important; }
+
+    .route .city { font-size: 18px; }
+    .details { grid-template-columns: repeat(3, 1fr) !important; }
+}

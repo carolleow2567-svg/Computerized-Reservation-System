@@ -35,71 +35,108 @@ if ($ticket === null) {
 $verifyUrl = 'http://' . $_SERVER['HTTP_HOST']
     . dirname($_SERVER['SCRIPT_NAME']) . '/verify.php?t=' . $ticket['verification_token'];
 
+$dep = strtotime($ticket['departure_datetime']);
+$arr = strtotime($ticket['arrival_datetime']);
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-Ticket <?= e($ticket['booking_reference']) ?> | CRS</title>
-    <style>
-        @media print {
-            .no-print { display: none !important; }
-            body { margin: 0; }
-        }
-        .ticket { max-width: 700px; border: 2px solid #333; padding: 20px; margin: 20px auto; }
-        .ticket table { width: 100%; border-collapse: collapse; }
-        .ticket th, .ticket td { text-align: left; padding: 6px; border-bottom: 1px solid #ddd; }
-    </style>
+    <title>E-Ticket <?= e($ticket['booking_reference']) ?> | RailMY</title>
+    <link rel="stylesheet" href="assets/css/bookings.css">
 </head>
 <body>
 
-<div class="no-print" style="text-align:center;">
-    <a href="booking-history.php">&larr; Back to My Bookings</a>
-    |
-    <button onclick="window.print()">Print</button>
-    <a href="download-ticket.php?id=<?= e($ticket['booking_id']) ?>">Download</a>
-</div>
+<?php require __DIR__ . '/../app/views/bookings/nav.php'; ?>
 
-<div class="ticket">
-    <h1>RailMY E-Ticket</h1>
-    <p>Booking Reference: <strong><?= e($ticket['booking_reference']) ?></strong></p>
-    <p>Status: <strong><?= e(ucfirst($ticket['booking_status'])) ?></strong></p>
+<div class="container">
+
+    <div class="page-header">
+        <h1>E-Ticket</h1>
+        <div class="ticket-actions no-print">
+            <?php if ($ticket['qr_active']): ?>
+                <a href="download-ticket.php?id=<?= e($ticket['booking_id']) ?>" class="btn btn-outline">Download ticket</a>
+                <a href="download-ticket.php?id=<?= e($ticket['booking_id']) ?>&amp;print=1"
+                   class="btn btn-outline">Print ticket</a>
+            <?php endif; ?>
+        </div>
+    </div>
 
     <?php if (!$ticket['qr_active']): ?>
-        <p style="color:red;">
-            <strong>
-                Cancellation <?= e($ticket['cancel_status']) ?>.
-                This ticket is no longer valid for travel.
-            </strong>
-        </p>
+        <div class="invalid-box">
+            Cancellation <?= e($ticket['cancel_status']) ?>.
+            This ticket is no longer valid for travel.
+        </div>
     <?php endif; ?>
 
-    <table>
-        <tr><th>Train</th><td><?= e($ticket['train_number']) ?> - <?= e($ticket['train_name']) ?> (<?= e($ticket['train_type']) ?>)</td></tr>
-        <tr><th>From</th><td><?= e($ticket['origin_name']) ?></td></tr>
-        <tr><th>To</th><td><?= e($ticket['destination_name']) ?></td></tr>
-        <tr><th>Departure</th><td><?= e(date('d M Y, H:i', strtotime($ticket['departure_datetime']))) ?></td></tr>
-        <tr><th>Arrival</th><td><?= e(date('d M Y, H:i', strtotime($ticket['arrival_datetime']))) ?></td></tr>
-        <tr><th>Total Paid</th><td>RM <?= e(number_format((float)$ticket['total_amount'], 2)) ?></td></tr>
-    </table>
+    <div class="ticket">
+        <div class="ticket-main">
+            <div class="ticket-head">
+                <span>RailMY &middot; <?= e($ticket['train_type']) ?> E-Ticket</span>
+                <span class="chip <?= $ticket['qr_active'] ? 'confirmed' : 'pending' ?>">
+                    Booking: <?= $ticket['qr_active'] ? 'Confirmed' : 'Cancellation ' . e($ticket['cancel_status']) ?>
+                </span>
+            </div>
 
-    <h3>Passengers</h3>
-    <table>
-        <tr><th>Name</th><th>Seat</th></tr>
-        <?php foreach ($ticket['passengers'] as $p): ?>
-            <tr>
-                <td><?= e($p['passenger_name']) ?></td>
-                <td><?= e($p['seat_number']) ?></td>
-            </tr>
-        <?php endforeach; ?>
-    </table>
+            <div class="ticket-body">
+                <div class="route">
+                    <span class="city"><?= e($ticket['origin_name']) ?></span>
+                    <span class="line"></span>
+                    <span class="city"><?= e($ticket['destination_name']) ?></span>
+                </div>
+                <div class="route-sub">
+                    <span>Departs <?= e(date('H:i', $dep)) ?></span>
+                    <span>Arrives <?= e(date('H:i', $arr)) ?></span>
+                </div>
 
-    <?php if ($ticket['qr_active']): ?>
-        <h3>Verification QR</h3>
-        <div id="qrcode"></div>
-        <p><small>Scan at the station gate. This code contains no personal information.</small></p>
-    <?php endif; ?>
+                <dl class="details">
+                    <div><dt>Booking reference</dt><dd><?= e($ticket['booking_reference']) ?></dd></div>
+                    <div><dt>Travel date</dt><dd><?= e(date('d M Y', $dep)) ?></dd></div>
+                    <div><dt>Train</dt><dd><?= e($ticket['train_number']) ?> &middot; <?= e($ticket['train_name']) ?></dd></div>
+                    <div><dt>Amount paid</dt><dd>RM <?= e(number_format((float)$ticket['total_amount'], 2)) ?></dd></div>
+                    <div><dt>Booked on</dt><dd><?= e(date('d M Y', strtotime($ticket['booking_date']))) ?></dd></div>
+                </dl>
+
+                <table>
+                    <thead>
+                        <tr><th>Passenger</th><th>Seat</th></tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($ticket['passengers'] as $p): ?>
+                            <tr>
+                                <td><?= e($p['passenger_name']) ?></td>
+                                <td><?= e($p['seat_number']) ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+
+                <p class="ticket-note">
+                    Please arrive 30 minutes before departure and present this QR code with a valid ID.
+                </p>
+            </div>
+        </div>
+
+        <div class="ticket-qr">
+            <?php if ($ticket['qr_active']): ?>
+                <div id="qrcode"></div>
+                <div class="qr-ref"><?= e($ticket['booking_reference']) ?></div>
+                <span class="chip confirmed">Confirmed</span>
+                <div class="qr-note">Scan at the gate. This code contains no personal information.</div>
+            <?php else: ?>
+                <span class="chip cancelled">QR disabled</span>
+                <div class="qr-note">This ticket cannot be used for travel.</div>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <div class="ticket-footer-btns no-print">
+        <a href="booking-history.php" class="btn btn-navy">Back to booking history</a>
+        <a href="index.php" class="btn btn-orange">Return to home</a>
+    </div>
+
 </div>
 
 <?php if ($ticket['qr_active']): ?>
@@ -107,8 +144,11 @@ $verifyUrl = 'http://' . $_SERVER['HTTP_HOST']
 <script>
     new QRCode(document.getElementById('qrcode'), {
         text: <?= json_encode($verifyUrl) ?>,
-        width: 160,
-        height: 160
+        width: 180,
+        height: 180,
+        colorDark: '#0b2a5b',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
     });
 </script>
 <?php endif; ?>

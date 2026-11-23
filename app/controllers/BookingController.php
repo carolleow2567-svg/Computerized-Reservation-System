@@ -13,28 +13,66 @@ class BookingController
 
     public function history(int $userId, array $input): array
     {
-        // Server-side validation: only whitelisted values are accepted
-        $allowedStatus = ['pending', 'confirmed', 'cancelled'];
-        $allowedPeriod = ['upcoming', 'past'];
+        $allowedTabs = ['upcoming', 'completed', 'cancelled'];
+        $allowedSort = ['earliest', 'latest'];
 
         $filters = [
-            'keyword' => mb_substr(trim((string)($input['keyword'] ?? '')), 0, 20),
-            'status'  => in_array($input['status'] ?? '', $allowedStatus, true) ? $input['status'] : '',
-            'period'  => in_array($input['period'] ?? '', $allowedPeriod, true) ? $input['period'] : '',
+            'keyword' => mb_substr(trim((string)($input['keyword'] ?? '')), 0, 40),
+            'tab'     => in_array($input['tab'] ?? '', $allowedTabs, true) ? $input['tab'] : 'upcoming',
+            'sort'    => in_array($input['sort'] ?? '', $allowedSort, true) ? $input['sort'] : 'earliest',
         ];
 
-        $bookings = $this->booking->getByUser($userId, $filters);
+        $all = $this->booking->getByUser($userId, [
+            'keyword' => $filters['keyword'],
+            'status'  => '',
+            'period'  => '',
+        ]);
 
-        // Decide in PHP whether the Cancel button should be shown
-        foreach ($bookings as &$b) {
+        $groups = ['upcoming' => [], 'completed' => [], 'cancelled' => []];
+        $now = time();
+
+        foreach ($all as $b) {
+            $departure = strtotime($b['departure_datetime']);
+            $cancelled = $b['booking_status'] === 'cancelled'
+                || in_array($b['cancel_status'], ['approved', 'refunded'], true);
+
+            // Cancel allowed only: confirmed, no active request, and > 48h before departure
             $b['can_cancel'] =
                 $b['booking_status'] === 'confirmed'
-                && strtotime($b['departure_datetime']) > time()
+                && !$cancelled
+                && $departure > $now + 48 * 3600
                 && ($b['cancel_status'] === null || $b['cancel_status'] === 'rejected');
-        }
-        unset($b);
 
-        return ['bookings' => $bookings, 'filters' => $filters];
+            $b['cancel_closed'] =
+                $b['booking_status'] === 'confirmed'
+                && !$cancelled
+                && $departure > $now
+                && $departure <= $now + 48 * 3600
+                && ($b['cancel_status'] === null || $b['cancel_status'] === 'rejected');
+
+            if ($cancelled) {
+                $groups['cancelled'][] = $b;
+            } elseif ($departure < $now) {
+                $groups['completed'][] = $b;
+            } else {
+                $groups['upcoming'][] = $b;
+            }
+        }
+
+        $counts = [
+            'upcoming'  => count($groups['upcoming']),
+            'completed' => count($groups['completed']),
+            'cancelled' => count($groups['cancelled']),
+        ];
+
+        $bookings = $groups[$filters['tab']];
+
+        usort($bookings, function ($a, $b) use ($filters) {
+            $cmp = strtotime($a['departure_datetime']) <=> strtotime($b['departure_datetime']);
+            return $filters['sort'] === 'latest' ? -$cmp : $cmp;
+        });
+
+        return ['bookings' => $bookings, 'filters' => $filters, 'counts' => $counts];
     }
 
     // Returns ticket data, or null if the booking does not exist OR is not the user's.

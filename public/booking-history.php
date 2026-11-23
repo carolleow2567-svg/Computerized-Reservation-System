@@ -26,6 +26,17 @@ $controller = new BookingController($pdo);
 $data = $controller->history((int)$_SESSION['user_id'], $_GET);
 $bookings = $data['bookings'];
 $filters = $data['filters'];
+$counts = $data['counts'];
+
+// Build a tab link that keeps the current search and sort
+function tabUrl(string $tab, array $filters): string
+{
+    return 'booking-history.php?' . http_build_query([
+        'tab' => $tab,
+        'keyword' => $filters['keyword'],
+        'sort' => $filters['sort'],
+    ]);
+}
 
 ?>
 <!DOCTYPE html>
@@ -33,9 +44,12 @@ $filters = $data['filters'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Bookings | CRS</title>
+    <title>My Bookings | RailMY</title>
+    <link rel="stylesheet" href="assets/css/bookings.css">
 </head>
 <body>
+
+<?php require __DIR__ . '/../app/views/bookings/nav.php'; ?>
 
 <div class="container">
 
@@ -49,95 +63,102 @@ $filters = $data['filters'];
         <?php unset($_SESSION['error']); ?>
     <?php endif; ?>
 
-    <header class="page-header">
-        <h1>My Bookings</h1>
-        <p>View your tickets and manage your bookings.</p>
-    </header>
+    <div class="page-header">
+        <h1>My bookings</h1>
+        <a href="#" class="btn btn-orange">Book a new trip</a>
+    </div>
 
-    <!-- Search and filter -->
-    <form method="GET" action="booking-history.php">
-        <input type="text" name="keyword" placeholder="Booking reference"
-               value="<?= e($filters['keyword']) ?>">
+    <div class="tabs">
+        <a href="<?= e(tabUrl('upcoming', $filters)) ?>" class="<?= $filters['tab'] === 'upcoming' ? 'active' : '' ?>">Upcoming (<?= (int)$counts['upcoming'] ?>)</a>
+        <a href="<?= e(tabUrl('completed', $filters)) ?>" class="<?= $filters['tab'] === 'completed' ? 'active' : '' ?>">Completed (<?= (int)$counts['completed'] ?>)</a>
+        <a href="<?= e(tabUrl('cancelled', $filters)) ?>" class="<?= $filters['tab'] === 'cancelled' ? 'active' : '' ?>">Cancelled (<?= (int)$counts['cancelled'] ?>)</a>
+    </div>
 
-        <select name="status">
-            <option value="">All statuses</option>
-            <?php foreach (['pending', 'confirmed', 'cancelled'] as $s): ?>
-                <option value="<?= e($s) ?>" <?= $filters['status'] === $s ? 'selected' : '' ?>>
-                    <?= e(ucfirst($s)) ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
+    <form method="GET" action="booking-history.php" class="filter-bar">
+        <input type="hidden" name="tab" value="<?= e($filters['tab']) ?>">
 
-        <select name="period">
-            <option value="">All trips</option>
-            <option value="upcoming" <?= $filters['period'] === 'upcoming' ? 'selected' : '' ?>>Upcoming</option>
-            <option value="past" <?= $filters['period'] === 'past' ? 'selected' : '' ?>>Past</option>
-        </select>
-
-        <button type="submit">Search</button>
-        <a href="booking-history.php">Reset</a>
-    </form>
-
-    <section class="table-section">
-        <div class="table-heading">
-            <h2>Booking Records</h2>
-            <span>Total: <?= count($bookings) ?></span>
+        <div>
+            <label for="keyword">Search</label>
+            <input type="text" id="keyword" name="keyword" maxlength="40"
+                   placeholder="Reference, train or station"
+                   value="<?= e($filters['keyword']) ?>">
         </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Reference</th>
-                    <th>Train</th>
-                    <th>Route</th>
-                    <th>Departure</th>
-                    <th>Amount (RM)</th>
-                    <th>Status</th>
-                    <th>Cancellation</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
+        <div>
+            <label for="sort">Sort by</label>
+            <select id="sort" name="sort">
+                <option value="earliest" <?= $filters['sort'] === 'earliest' ? 'selected' : '' ?>>Journey date (earliest)</option>
+                <option value="latest" <?= $filters['sort'] === 'latest' ? 'selected' : '' ?>>Journey date (latest)</option>
+            </select>
+        </div>
 
-            <?php if (empty($bookings)): ?>
-                <tr>
-                    <td colspan="8" class="empty">No bookings found.</td>
-                </tr>
-            <?php else: ?>
-                <?php foreach ($bookings as $b): ?>
-                    <tr>
-                        <td><?= e($b['booking_reference']) ?></td>
-                        <td><?= e($b['train_number']) ?> - <?= e($b['train_name']) ?></td>
-                        <td><?= e($b['origin_name']) ?> &rarr; <?= e($b['destination_name']) ?></td>
-                        <td><?= e(date('d M Y, H:i', strtotime($b['departure_datetime']))) ?></td>
-                        <td><?= e(number_format((float)$b['total_amount'], 2)) ?></td>
-                        <td>
-                            <span class="status <?= e($b['booking_status']) ?>">
-                                <?= e(ucfirst($b['booking_status'])) ?>
-                            </span>
-                        </td>
-                        <td><?= $b['cancel_status'] ? e(ucfirst($b['cancel_status'])) : '-' ?></td>
-                        <td>
-                            <?php if ($b['booking_status'] === 'confirmed'): ?>
-                                <a href="eticket.php?id=<?= e($b['booking_id']) ?>">View Ticket</a>
-                            <?php endif; ?>
+        <div class="filter-actions">
+            <button type="submit" class="btn btn-navy">Search</button>
+            <a href="booking-history.php?tab=<?= e($filters['tab']) ?>" class="btn btn-outline">Reset</a>
+        </div>
+    </form>
 
-                            <?php if ($b['can_cancel']): ?>
-                                <form method="POST" action="cancel-booking.php" style="display:inline;"
-                                      onsubmit="return confirm('Request cancellation for this booking?');">
-                                    <input type="hidden" name="booking_id" value="<?= e($b['booking_id']) ?>">
-                                    <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
-                                    <button type="submit">Cancel Booking</button>
-                                </form>
-                            <?php endif; ?>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            <?php endif; ?>
+    <?php if (empty($bookings)): ?>
+        <div class="empty-box">No bookings found.</div>
+    <?php else: ?>
+        <?php foreach ($bookings as $b): ?>
+            <?php
+                $isCancelled = $b['booking_status'] === 'cancelled'
+                    || in_array($b['cancel_status'], ['approved', 'refunded'], true);
+                $chipClass = $isCancelled ? 'cancelled' : $b['booking_status'];
+                $chipText = $isCancelled ? 'Cancelled' : ucfirst($b['booking_status']);
+            ?>
+            <div class="booking-card">
+                <div>
+                    <div class="booking-meta">
+                        <span class="chip <?= e($chipClass) ?>"><?= e($chipText) ?></span>
+                        <span>Ref <?= e($b['booking_reference']) ?></span>
+                    </div>
+                    <h2><?= e($b['origin_name']) ?> &rarr; <?= e($b['destination_name']) ?></h2>
+                    <div class="sub">
+                        <?= e(date('D, d M Y, H:i', strtotime($b['departure_datetime']))) ?>
+                        &rarr; <?= e(date('H:i', strtotime($b['arrival_datetime']))) ?>
+                    </div>
+                    <div class="sub"><?= e($b['train_number']) ?> &middot; <?= e($b['train_name']) ?></div>
 
-            </tbody>
-        </table>
-    </section>
+                    <?php if ($b['cancel_status'] === 'pending'): ?>
+                        <div class="note">Cancellation request pending approval.</div>
+                    <?php elseif ($b['cancel_status'] === 'rejected'): ?>
+                        <div class="note">Your last cancellation request was rejected.</div>
+                    <?php elseif ($b['cancel_status'] === 'refunded'): ?>
+                        <div class="note">Cancelled and refunded.</div>
+                    <?php elseif ($b['cancel_closed']): ?>
+                        <div class="note">Cancellation closed: departs in less than 48 hours.</div>
+                    <?php endif; ?>
+                </div>
+
+                <div class="booking-side">
+                    <div class="fare">
+                        <small>Total fare</small>
+                        <strong>RM <?= e(number_format((float)$b['total_amount'], 2)) ?></strong>
+                    </div>
+
+                    <?php if ($b['booking_status'] === 'confirmed'): ?>
+                        <a href="eticket.php?id=<?= e($b['booking_id']) ?>" class="btn btn-navy">View e-ticket</a>
+                    <?php endif; ?>
+
+                    <?php if ($b['can_cancel']): ?>
+                        <form method="POST" action="cancel-booking.php"
+                              onsubmit="return confirm('Request cancellation for this booking?');">
+                            <input type="hidden" name="booking_id" value="<?= e($b['booking_id']) ?>">
+                            <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                            <button type="submit" class="btn btn-danger">Cancel</button>
+                        </form>
+                    <?php endif; ?>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    <?php endif; ?>
+
+    <p class="policy">
+        Cancellation policy: free cancellation up to 48 hours before departure.
+        Refunds are processed by the administrator after approval.
+    </p>
 
 </div>
 
