@@ -293,3 +293,291 @@ td {
     background: #dcfce7;
     color: #166534;
 }
+
+
+/* ==========================================
+   CRS - HELP & CONTACT | MODERN DESIGN
+========================================== */
+
+.help-container {
+    max-width: 1050px;
+    margin: 35px auto;
+    padding: 0 24px 40px;
+    color: #243449;
+    font-family: Arial, sans-serif;
+}
+
+.help-back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #2878c7;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.help-back-link:hover {
+    color: #102b4e;
+}
+
+/* HERO HEADER */
+
+.help-header {
+    background: linear-gradient(120deg, #102b4e, #245b91);
+    padding: 55px 45px;
+    border-radius: 18px;
+    margin-bottom: 30px;
+    color: #fff;
+    text-align: left;
+    box-shadow: 0 10px 28px rgba(16, 43, 78, 0.16);
+}
+
+.help-header h1 {
+    color: #fff;
+    font-size: 36px;
+    font-weight: 700;
+    margin: 0 0 14px;
+    letter-spacing: -0.7px;
+}
+
+.help-header p {
+    color: #dce9f7;
+    font-size: 15px;
+    line-height: 1.8;
+    max-width: 600px;
+    margin: 0;
+}
+
+/* CONTENT SECTIONS */
+
+.help-section {
+    background: #fff;
+    padding: 30px;
+    margin-bottom: 25px;
+    border: 1px solid #e8edf3;
+    border-radius: 16px;
+    box-shadow: 0 5px 20px rgba(30, 55, 90, 0.045);
+}
+
+.help-section h2 {
+    color: #173b67;
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0 0 22px;
+}
+
+/* SEARCH */
+
+.faq-search {
+    width: 100%;
+    padding: 16px 18px;
+    border: 1px solid #dce4ed;
+    border-radius: 10px;
+    background: #f8fafc;
+    font-size: 14px;
+    margin-bottom: 18px;
+    transition: 0.2s ease;
+}
+
+.faq-search:focus {
+    outline: none;
+    background: #fff;
+    border-color: #2878c7;
+    box-shadow: 0 0 0 4px rgba(40, 120, 199, 0.1);
+}
+
+/* FAQ ACCORDION */
+
+.faq-item {
+    border-bottom: 1px solid #edf0f4;
+}
+
+.faq-question {
+    width: 100%;
+    background: transparent;
+    border: none;
+    padding: 21px 5px;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    color: #263b53;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.faq-question:hover {
+    color: #2878c7;
+}
+
+.faq-icon {
+    color: #2878c7;
+    font-size: 22px;
+    font-weight: 400;
+}
+
+.faq-answer {
+    display: none;
+    padding: 0 30px 20px 5px;
+    color: #718096;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.faq-item.active .faq-answer {
+    display: block;
+}
+
+.no-results {
+    display: none;
+    text-align: center;
+    padding: 25px;
+    color: #718096;
+    font-size: 14px;
+}
+
+/* CONTACT CARDS */
+
+.contact-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.contact-card {
+    background: #f5f8fc;
+    border: 1px solid #e7edf5;
+    border-radius: 13px;
+    padding: 23px;
+    transition: transform 0.2s ease,
+                box-shadow 0.2s ease;
+}
+
+.contact-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(30, 55, 90, 0.08);
+}
+
+.contact-card h3 {
+    color: #173b67;
+    font-size: 16px;
+    margin: 0 0 10px;
+}
+
+.contact-card p {
+    color: #718096;
+    font-size: 14px;
+    line-height: 1.7;
+    margin: 0;
+}
+
+.contact-card a {
+    color: #2878c7;
+    text-decoration: none;
+}
+
+.contact-card a:hover {
+    text-decoration: underline;
+}
+
+.help-note,
+.help-form-message {
+    color: #8995a5;
+    font-size: 12px;
+    line-height: 1.6;
+    margin-top: 16px;
+}
+
+/* CONTACT FORM */
+
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.contact-form label {
+    color: #34495e;
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 8px;
+}
+
+.contact-form input,
+.contact-form select,
+.contact-form textarea {
+    width: 100%;
+    padding: 14px 15px;
+    border: 1px solid #dce4ed;
+    border-radius: 9px;
+    background: #f9fbfd;
+    color: #263238;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    transition: 0.2s ease;
+}
+
+.contact-form input:focus,
+.contact-form select:focus,
+.contact-form textarea:focus {
+    outline: none;
+    background: #fff;
+    border-color: #2878c7;
+    box-shadow: 0 0 0 4px rgba(40, 120, 199, 0.1);
+}
+
+.contact-form textarea {
+    min-height: 145px;
+    resize: vertical;
+}
+
+.help-submit-btn {
+    background: #173b67;
+    color: #fff;
+    border: none;
+    padding: 15px 24px;
+    border-radius: 9px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+    align-self: flex-start;
+    min-width: 170px;
+}
+
+.help-submit-btn:hover {
+    background: #2878c7;
+    transform: translateY(-2px);
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 650px) {
+    .help-container {
+        margin-top: 20px;
+        padding: 0 15px 30px;
+    }
+
+    .help-header {
+        padding: 35px 24px;
+    }
+
+    .help-header h1 {
+        font-size: 28px;
+    }
+
+    .help-section {
+        padding: 22px 18px;
+    }
+
+    .contact-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .help-submit-btn {
+        width: 100%;
+    }
+}
