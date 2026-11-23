@@ -129,7 +129,7 @@ class Schedule
     {
         $sql = "SELECT COUNT(*) FROM bookings
                 WHERE schedule_id = :id
-                AND booking_status = 'confirmed'";
+                AND booking_status IN ('confirmed','pending')";
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['id' => $id]);
 
