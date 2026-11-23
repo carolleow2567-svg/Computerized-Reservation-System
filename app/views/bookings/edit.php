@@ -237,6 +237,195 @@
 
         <?php endif; ?>
 
+        <hr>
+
+        <h2>Payment Management</h2>
+
+        <div class="form-group">
+            <label>Current Payment Status</label>
+            <input type="text"
+                value="<?= e(ucfirst($booking['payment_status'])) ?>"
+                disabled>
+        </div>
+
+        <?php if (
+            $booking['booking_status'] !== 'cancelled' &&
+            in_array($booking['payment_status'], ['unpaid', 'failed'], true)
+        ): ?>
+
+            <form method="POST">
+
+                <input type="hidden"
+                    name="csrf_token"
+                    value="<?= e($_SESSION['csrf_token']) ?>">
+
+                <input type="hidden"
+                    name="action"
+                    value="payment_status">
+
+                <div class="form-group">
+                    <label for="payment_status">Update Payment Status</label>
+
+                    <select name="payment_status"
+                            id="payment_status"
+                            required>
+
+                        <?php if ($booking['payment_status'] === 'unpaid'): ?>
+                            <option value="paid">Paid</option>
+                            <option value="failed">Failed</option>
+                        <?php else: ?>
+                            <option value="paid">Paid</option>
+                        <?php endif; ?>
+
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-primary">
+                    Update Payment
+                </button>
+
+            </form>
+
+        <?php elseif ($booking['payment_status'] === 'refunded'): ?>
+
+            <p>Payment has been refunded.</p>
+
+        <?php elseif ($booking['payment_status'] === 'paid'): ?>
+
+            <p>Payment has been completed successfully.</p>
+
+        <?php elseif ($booking['booking_status'] === 'cancelled'): ?>
+
+            <p>Payment cannot be updated because this booking is cancelled.</p>
+
+        <?php endif; ?>
+
+        <hr>
+
+        <h2>Refund Management</h2>
+
+        <div class="form-group">
+            <label>Current Refund Status</label>
+            <input type="text"
+                value="<?= e(ucfirst($booking['refund_status'])) ?>"
+                disabled>
+        </div>
+
+        <div class="form-group">
+            <label>Refund Amount (RM)</label>
+            <input type="text"
+                value="<?= e(number_format((float) $booking['refund_amount'], 2)) ?>"
+                disabled>
+        </div>
+
+        <?php if (
+            $booking['booking_status'] === 'cancelled' &&
+            $booking['payment_status'] === 'paid' &&
+            $booking['refund_status'] === 'none'
+        ): ?>
+
+            <h3>Request Refund</h3>
+
+            <form method="POST">
+
+                <input type="hidden"
+                    name="csrf_token"
+                    value="<?= e($_SESSION['csrf_token']) ?>">
+
+                <input type="hidden"
+                    name="action"
+                    value="refund">
+
+                <input type="hidden"
+                    name="refund_status"
+                    value="pending">
+
+                <div class="form-group">
+                    <label for="refund_amount">Refund Amount (RM)</label>
+
+                    <input type="number"
+                        name="refund_amount"
+                        id="refund_amount"
+                        min="0.01"
+                        max="<?= e($booking['total_amount']) ?>"
+                        step="0.01"
+                        required>
+                </div>
+
+                <button type="submit" class="btn-primary">
+                    Submit Refund Request
+                </button>
+
+            </form>
+
+        <?php elseif (
+            $booking['refund_status'] === 'pending'
+        ): ?>
+
+            <h3>Refund Pending</h3>
+
+            <p>A refund request has been recorded and is awaiting processing.</p>
+
+            <form method="POST">
+
+                <input type="hidden"
+                    name="csrf_token"
+                    value="<?= e($_SESSION['csrf_token']) ?>">
+
+                <input type="hidden"
+                    name="action"
+                    value="refund">
+
+                <input type="hidden"
+                    name="refund_amount"
+                    value="<?= e($booking['refund_amount']) ?>">
+
+                <div class="dialog-actions">
+
+                    <button type="submit"
+                            name="refund_status"
+                            value="processed"
+                            class="btn-primary">
+                        Process Refund
+                    </button>
+
+                    <button type="submit"
+                            name="refund_status"
+                            value="rejected"
+                            class="btn-cancel-confirm">
+                        Reject Refund
+                    </button>
+
+                </div>
+
+            </form>
+
+        <?php elseif (
+            $booking['refund_status'] === 'processed'
+        ): ?>
+
+            <p>Refund has been successfully processed.</p>
+
+        <?php elseif (
+            $booking['refund_status'] === 'rejected'
+        ): ?>
+
+            <p>The refund request was rejected.</p>
+
+        <?php elseif (
+            $booking['booking_status'] !== 'cancelled'
+        ): ?>
+
+            <p>A refund can only be requested after the booking is cancelled and payment is completed.</p>
+
+        <?php elseif (
+            $booking['payment_status'] !== 'paid'
+        ): ?>
+
+            <p>A refund is unavailable because the payment has not been completed.</p>
+
+        <?php endif; ?>
+
     </section>
 
 </div>
@@ -305,6 +494,19 @@ if (bookingForm) {
             dialog.showModal();
         }
     });
+
+    // Automatically open cancellation confirmation
+    // when arriving through the Cancel action.
+    const urlParams = new URLSearchParams(window.location.search);
+
+    if (urlParams.get('action') === 'cancel') {
+
+        statusSelect.value = 'cancelled';
+
+        statusSelect.dispatchEvent(
+        new Event('change')
+        );
+    }
 }
 </script>
 

@@ -25,7 +25,7 @@ class Booking
                     b.cancellation_date,
                     b.cancellation_reason,
 
-                    u.full_name,
+                    u.full_name AS account_holder,
                     u.email,
                     u.phone_number,
 
@@ -189,11 +189,7 @@ class Booking
     }
 
     // Update booking status and cancellation information.
-    public function updateStatus(
-        int $id,
-        string $status,
-        ?string $reason = null
-    ): bool {
+    public function updateStatus(int $id, string $status, ?string $reason = null): bool {
 
         if ($status === 'cancelled') {
 
@@ -227,5 +223,121 @@ class Booking
         ]);
 
         return $stmt->rowCount() > 0;
+    }
+
+    public function updatePaymentStatus(int $id, string $status): bool
+    {
+        if (!in_array($status, ['paid', 'failed'], true)) {
+            return false;
+        }
+
+        $sql = "UPDATE bookings
+                SET payment_status = :status
+                WHERE booking_id = :id
+                AND booking_status != 'cancelled'
+                AND payment_status IN ('unpaid', 'failed')";
+
+        $stmt = $this->db->prepare($sql);
+
+        $stmt->execute([
+            'status' => $status,
+            'id' => $id
+        ]);
+
+        return $stmt->rowCount() > 0;
+    }
+
+    /**
+     * Update the refund status and amount for a booking.
+     *
+     * @param int $id The ID of the booking.
+     * @param string $status The new refund status.
+     * @param float $amount The refund amount.
+     * @return bool True if the refund was updated, false otherwise.
+     */
+    public function updateRefund(int $id, string $status, float $amount): bool 
+    {
+        if (!in_array($status, ['pending', 'processed', 'rejected'], true)) {
+        return false;
+        }
+
+        try {
+            $this->db->beginTransaction();
+
+            // Lock the booking while validating and updating its refund.
+            $sql = "SELECT booking_status, payment_status, refund_status, refund_amount, total_amount
+                    FROM bookings
+                    WHERE booking_id = :id
+                    FOR UPDATE";
+
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute(['id' => $id]);
+
+            $booking = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$booking) {
+                $this->db->rollBack();
+                return false;
+            }
+
+            // Refunds are only available for cancelled, paid bookings.
+            if (
+                $booking['booking_status'] !== 'cancelled' ||
+                $booking['payment_status'] !== 'paid'
+            ) {
+                $this->db->rollBack();
+                return false;
+            }
+
+            $currentRefundStatus = $booking['refund_status'];
+
+            // Start a new refund request.
+            if ($status === 'pending') {
+                if ($currentRefundStatus !== 'none') {
+                    $this->db->rollBack();
+                    return false;
+                }
+
+                if ($amount <= 0 || $amount > (float) $booking['total_amount']) {
+                    $this->db->rollBack();
+                    return false;
+                }
+
+            // Only pending refunds can be processed or rejected.
+            } elseif ($currentRefundStatus !== 'pending') {
+                $this->db->rollBack();
+                return false;
+            }
+            else {
+                $amount = (float) $booking['refund_amount'];
+            }
+
+            $sql = "UPDATE bookings
+                SET refund_status = :status,
+                    refund_amount = :amount,
+                    payment_status = CASE
+                        WHEN :status_for_payment = 'processed'
+                        THEN 'refunded'
+                        ELSE payment_status
+                    END
+                WHERE booking_id = :id";
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->execute([
+                'status' => $status,
+                'amount' => $amount,
+                'status_for_payment' => $status,
+                'id' => $id
+            ]);
+
+            $this->db->commit();
+
+            return true;
+
+    } 
+    catch (Throwable $e) {
+        if ($this->db->inTransaction()) { $this->db->rollBack();}
+
+        throw $e;}
     }
 }

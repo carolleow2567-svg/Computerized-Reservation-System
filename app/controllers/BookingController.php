@@ -84,4 +84,46 @@ class BookingController
             $reason
         );
     }
+
+    public function updatePaymentStatus(int $id, string $status): bool
+    {
+        if (!in_array($status, ['paid', 'failed'], true)) {
+            return false;
+        }
+
+        $booking = $this->bookingModel->getById($id);
+
+        if (!$booking) {
+            return false;
+        }
+
+        return $this->bookingModel->updatePaymentStatus($id, $status);
+    }
+
+    public function updateRefund(
+        int $id,
+        string $status,
+        float $amount
+    ): bool {
+        if (!in_array($status, ['pending', 'processed', 'rejected'], true)) {
+            return false;
+        }
+
+        $booking = $this->bookingModel->getById($id);
+
+        if (!$booking) {
+            return false;
+        }
+
+        if ($status === 'pending') {
+            if (
+                $amount <= 0 ||
+                $amount > (float) $booking['total_amount']
+            ) {
+                return false;
+            }
+        }
+
+        return $this->bookingModel->updateRefund($id, $status, $amount);
+    }
 }

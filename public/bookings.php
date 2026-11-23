@@ -26,24 +26,78 @@ function maskIC($ic): string
 }
 
 $search = trim($_GET['search'] ?? '');
+
 $statusFilter = $_GET['status'] ?? '';
+$paymentFilter = $_GET['payment_status'] ?? '';
+$dateFilter = $_GET['departure_date'] ?? '';
 
-if ($search !== '') {
-    $bookings = array_filter($bookings, function ($booking) use ($search) {
-        return
-            stripos($booking['booking_reference'], $search) !== false ||
-            stripos($booking['full_name'], $search) !== false ||
-            stripos($booking['email'], $search) !== false ||
+$allowedStatuses = ['pending', 'confirmed', 'cancelled'];
+$allowedPaymentStatuses = ['unpaid', 'paid', 'failed', 'refunded'];
+
+// Validate filter values.
+if (!in_array($statusFilter, $allowedStatuses, true)) {
+    $statusFilter = '';
+}
+
+if (!in_array($paymentFilter, $allowedPaymentStatuses, true)) {
+    $paymentFilter = '';
+}
+
+// Accept only a valid YYYY-MM-DD date.
+if (
+    $dateFilter !== '' &&
+    (
+        !preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateFilter) ||
+        !DateTime::createFromFormat('!Y-m-d', $dateFilter)
+    )
+) {
+    $dateFilter = '';
+}
+
+// Apply search and all filters together.
+$bookings = array_filter($bookings, function ($booking) use (
+    $search,
+    $statusFilter,
+    $paymentFilter,
+    $dateFilter
+) {
+    $matchesSearch = true;
+    $matchesStatus = true;
+    $matchesPayment = true;
+    $matchesDate = true;
+
+    if ($search !== '') {
+        $matchesSearch =
+            stripos($booking['booking_reference'] ?? '', $search) !== false ||
+            stripos($booking['full_name'] ?? '', $search) !== false ||
+            stripos($booking['email'] ?? '', $search) !== false ||
             stripos($booking['passenger_details'] ?? '', $search) !== false ||
-            stripos($booking['train_number'], $search) !== false;
-    });
-}
+            stripos($booking['passenger_emails'] ?? '', $search) !== false ||
+            stripos($booking['train_number'] ?? '', $search) !== false;
+    }
 
-if (in_array($statusFilter, ['pending', 'confirmed', 'cancelled'], true)) {
-    $bookings = array_filter($bookings, function ($booking) use ($statusFilter) {
-        return $booking['booking_status'] === $statusFilter;
-    });
-}
+    if ($statusFilter !== '') {
+        $matchesStatus =
+            $booking['booking_status'] === $statusFilter;
+    }
+
+    if ($paymentFilter !== '') {
+        $matchesPayment =
+            $booking['payment_status'] === $paymentFilter;
+    }
+
+    if ($dateFilter !== '') {
+        $matchesDate =
+            date('Y-m-d', strtotime($booking['departure_datetime'])) === $dateFilter;
+    }
+
+    return $matchesSearch &&
+           $matchesStatus &&
+           $matchesPayment &&
+           $matchesDate;
+});
+
+$totalBookings = count($bookings);
 
 ?>
 
@@ -218,28 +272,33 @@ if (in_array($statusFilter, ['pending', 'confirmed', 'cancelled'], true)) {
             >
 
             <select name="status">
-                <option value="">All Statuses</option>
-
-                <option value="pending"
-                    <?= $statusFilter === 'pending' ? 'selected' : '' ?>>
-                    Pending
-                </option>
-
-                <option value="confirmed"
-                    <?= $statusFilter === 'confirmed' ? 'selected' : '' ?>>
-                    Confirmed
-                </option>
-
-                <option value="cancelled"
-                    <?= $statusFilter === 'cancelled' ? 'selected' : '' ?>>
-                    Cancelled
-                </option>
+                <option value="">All Booking Statuses</option>
+                <?php foreach ($allowedStatuses as $status): ?>
+                    <option value="<?= e($status) ?>"
+                        <?= $status === $statusFilter ? 'selected' : '' ?>>
+                        <?= e(ucfirst($status)) ?>
+                    </option>
+                <?php endforeach; ?>
             </select>
 
-            <button type="submit" class="btn-primary">Filter</button>
+            <select name="payment_status">
+                <option value="">All Payment Statuses</option>
+                <?php foreach ($allowedPaymentStatuses as $payment): ?>
+                    <option  value="<?= e($payment) ?>"
+                        <?= $payment === $paymentFilter ? 'selected' : '' ?>>
+                        <?= e(ucfirst($payment)) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+
+            <input
+                type="date"
+                name="departure_date"
+                value="<?= e($dateFilter) ?>">
+
+            <button type="submit" class="btn-primary">Apply Filters</button>
 
             <a href="bookings.php" class="btn-edit">Reset</a>
-
         </form>
 
         <div class="table-wrapper">
@@ -253,8 +312,10 @@ if (in_array($statusFilter, ['pending', 'confirmed', 'cancelled'], true)) {
                         <th>Train</th>
                         <th>Route</th>
                         <th>Departure</th>
-                        <th>Amount (RM)</th>
-                        <th>Status</th>
+                        <th>Seats-Coach Class</th>
+                        <th>Payment</th>
+                        <th>Booking</th>
+                        <th>Cancellation & Refund</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -264,7 +325,7 @@ if (in_array($statusFilter, ['pending', 'confirmed', 'cancelled'], true)) {
                 <?php if (empty($bookings)): ?>
 
                     <tr>
-                        <td colspan="8" class="empty">
+                        <td colspan="10" class="empty">
                             No booking records found.
                         </td>
                     </tr>
@@ -274,9 +335,6 @@ if (in_array($statusFilter, ['pending', 'confirmed', 'cancelled'], true)) {
                     <?php foreach ($bookings as $booking): ?>
 
                         <?php
-                        // Retrieve detailed information for this booking.
-                        $details = $controller->show((int)$booking['booking_id']);
-
                         $dialogId = 'booking-dialog-' . (int)$booking['booking_id'];
                         ?>
 
@@ -321,7 +379,11 @@ if (in_array($statusFilter, ['pending', 'confirmed', 'cancelled'], true)) {
                             </td>
 
                             <td>
-                                <?= e(number_format((float)$booking['total_amount'], 2)) ?>
+                                <?= !empty($booking['seat_details']) ? e($booking['seat_details']) : 'Not assigned' ?>
+                            </td>
+
+                            <td>
+                                <?= e(ucfirst($booking['payment_status'])) ?>
                             </td>
 
                             <td>
@@ -331,20 +393,31 @@ if (in_array($statusFilter, ['pending', 'confirmed', 'cancelled'], true)) {
                             </td>
 
                             <td>
+                                <?= e(number_format((float)$booking['refund_amount'], 2)) ?>
+                            </td>
+
+                            <td>
                                 <button
                                     type="button"
                                     class="btn-view"
-                                    onclick="document.getElementById('<?= e($dialogId) ?>').showModal()"
-                                >
+                                    onclick="document.getElementById('booking-dialog-<?= (int)$booking['booking_id'] ?>').showModal()">
                                     View
                                 </button>
 
                                 <a
                                     href="booking-edit.php?id=<?= e($booking['booking_id']) ?>"
-                                    class="btn-edit"
-                                >
-                                    Manage
+                                    class="btn-edit">
+                                    Edit
                                 </a>
+
+                                <?php if ($booking['booking_status'] !== 'cancelled'): ?>
+                                    <a
+                                        href="booking-cancel.php?id=<?= (int)$booking['booking_id'] ?>&action=cancel"
+                                        class="btn-edit"
+                                        onclick="return confirm('Are you sure you want to cancel this booking?');">
+                                        Cancel
+                                    </a>
+                                <?php endif; ?>
                             </td>
 
                         </tr>
@@ -428,7 +501,6 @@ if (in_array($statusFilter, ['pending', 'confirmed', 'cancelled'], true)) {
 
             </div>
 
-
             <div class="booking-section">
 
                 <h3>Passenger Details</h3>
@@ -499,7 +571,6 @@ if (in_array($statusFilter, ['pending', 'confirmed', 'cancelled'], true)) {
 
             </div>
 
-
             <div class="booking-section">
 
                 <h3>Train and Journey Details</h3>
@@ -537,7 +608,6 @@ if (in_array($statusFilter, ['pending', 'confirmed', 'cancelled'], true)) {
 
             </div>
 
-
             <div class="booking-section">
 
                 <h3>Payment and Refund Information</h3>
@@ -567,7 +637,6 @@ if (in_array($statusFilter, ['pending', 'confirmed', 'cancelled'], true)) {
                 </div>
 
             </div>
-
 
             <div class="booking-section">
 
@@ -599,7 +668,6 @@ if (in_array($statusFilter, ['pending', 'confirmed', 'cancelled'], true)) {
                 </div>
 
             </div>
-
 
             <div class="booking-dialog-actions">
 
