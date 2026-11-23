@@ -1,5 +1,13 @@
 <?php
+session_start();
 require_once "../db.php";
+
+// CSRF Token
+if (empty($_SESSION["csrf_token"])) {
+    $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
+}
+
+$csrf_token = $_SESSION["csrf_token"];
 
 $errors = [];
 $success = "";
@@ -12,7 +20,13 @@ $password = "";
 $confirm_password = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-
+// CSRF Validation
+if (
+    !isset($_POST["csrf_token"]) ||
+    !hash_equals($_SESSION["csrf_token"], $_POST["csrf_token"])
+) {
+    die("Invalid CSRF token. Please refresh the page and try again.");
+}
     $fullname = trim($_POST["fullname"] ?? "");
     $email = trim($_POST["email"] ?? "");
     $phone = trim($_POST["phone"] ?? "");
@@ -199,7 +213,8 @@ function fieldClass($field, $errors) {
                 </div>
             <?php endif; ?>
             <form method="POST" action="" novalidate>
-
+            <input type="hidden" name="csrf_token"
+       value="<?php echo htmlspecialchars($csrf_token); ?>">
                 <div class="form-group">
 
                     <label for="fullname">
