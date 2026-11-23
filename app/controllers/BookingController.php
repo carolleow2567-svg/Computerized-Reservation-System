@@ -24,8 +24,12 @@ class BookingController
     }
 
     // Update booking status with transition safeguards.
-    public function updateStatus(int $id, string $status): bool
-    {
+    public function updateStatus(
+        int $id,
+        string $status,
+        ?string $reason = null
+    ): bool {
+
         $booking = $this->bookingModel->getById($id);
 
         if (!$booking) {
@@ -57,6 +61,15 @@ class BookingController
             return false;
         }
 
+        // A cancellation reason is mandatory.
+        if ($status === 'cancelled') {
+            $reason = trim((string) $reason);
+
+            if ($reason === '' || strlen($reason) > 255) {
+                return false;
+            }
+        }
+
         // Prevent confirmation of cancelled schedules.
         if (
             $status === 'confirmed' &&
@@ -65,6 +78,10 @@ class BookingController
             return false;
         }
 
-        return $this->bookingModel->updateStatus($id, $status);
+        return $this->bookingModel->updateStatus(
+            $id,
+            $status,
+            $reason
+        );
     }
 }

@@ -25,7 +25,6 @@ class Booking
                     b.cancellation_date,
                     b.cancellation_reason,
 
-                    -- Registered account holder (booked by)
                     u.full_name,
                     u.email,
                     u.phone_number,
@@ -39,7 +38,6 @@ class Booking
                     s.departure_datetime,
                     s.arrival_datetime,
 
-                    -- All passengers under this booking
                     (
                         SELECT GROUP_CONCAT(
                             bp.passenger_name
@@ -56,7 +54,6 @@ class Booking
                         WHERE bp.booking_id = b.booking_id
                     ) AS passenger_count,
 
-                    -- All seat assignments
                     (
                         SELECT GROUP_CONCAT(
                             CONCAT(
@@ -102,7 +99,6 @@ class Booking
         $sql = "SELECT
                     b.*,
 
-                    -- Registered account holder
                     u.full_name AS account_name,
                     u.email AS account_email,
                     u.phone_number AS account_phone,
@@ -173,8 +169,7 @@ class Booking
 
         $booking['passengers'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Retrieve all seats, including any not yet assigned
-        // to an individual passenger.
+        // Retrieve all seats.
         $seatSql = "SELECT
                         seat_id,
                         passenger_id,
@@ -193,18 +188,44 @@ class Booking
         return $booking;
     }
 
-    // Update booking status.
-    public function updateStatus(int $id, string $status): bool
-    {
-        $stmt = $this->db->prepare(
-            "UPDATE bookings
-             SET booking_status = :status
-             WHERE booking_id = :id"
-        );
+    // Update booking status and cancellation information.
+    public function updateStatus(
+        int $id,
+        string $status,
+        ?string $reason = null
+    ): bool {
 
-        return $stmt->execute([
+        if ($status === 'cancelled') {
+
+            $sql = "UPDATE bookings
+                    SET booking_status = 'cancelled',
+                        cancellation_date = NOW(),
+                        cancellation_reason = :reason
+                    WHERE booking_id = :id
+                    AND booking_status IN ('pending', 'confirmed')";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->execute([
+                'reason' => $reason,
+                'id' => $id
+            ]);
+
+            return $stmt->rowCount() > 0;
+        }
+
+        $sql = "UPDATE bookings
+                SET booking_status = :status
+                WHERE booking_id = :id
+                AND booking_status = 'pending'";
+
+        $stmt = $this->db->prepare($sql);
+
+        $stmt->execute([
             'status' => $status,
             'id' => $id
         ]);
+
+        return $stmt->rowCount() > 0;
     }
 }
