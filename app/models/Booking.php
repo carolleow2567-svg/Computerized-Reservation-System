@@ -59,10 +59,7 @@ class Booking
                             CONCAT(
                                 bs.coach_number,
                                 '-',
-                                bs.seat_number,
-                                ' (',
-                                bs.class_name,
-                                ')'
+                                bs.seat_number
                             )
                             ORDER BY bs.seat_id
                             SEPARATOR ', '

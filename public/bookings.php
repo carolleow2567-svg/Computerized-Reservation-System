@@ -198,7 +198,7 @@ require __DIR__ . '/../app/views/partials/admin_start.php';
                         <th>Seats-Coach Class</th>
                         <th>Payment</th>
                         <th>Booking</th>
-                        <th>Cancellation & Refund</th>
+                        <th>Refund</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -372,6 +372,52 @@ require __DIR__ . '/../app/views/partials/admin_start.php';
         th.addEventListener('keydown', function (e) {
             if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); sort(); }
         });
+    });
+})();
+</script>
+
+<script>
+// Live filtering of the rows already rendered by PHP (no page reload).
+(function () {
+    var rows = document.querySelectorAll('#recordTable tbody tr[data-status]');
+    if (!rows.length) { return; }
+
+    var q = document.getElementById('fSearch');
+    var st = document.getElementById('fStatus');
+    var pay = document.getElementById('fPayment');   // bookings only
+    var date = document.getElementById('fDate');
+    var shown = document.getElementById('fShown');
+    var none = document.getElementById('fNoMatch');
+
+    function apply() {
+        var term = q.value.trim().toLowerCase();
+        var count = 0;
+
+        rows.forEach(function (row) {
+            var ok =
+                (!st.value || row.dataset.status === st.value) &&
+                (!pay || !pay.value || row.dataset.payment === pay.value) &&
+                (!date.value || row.dataset.date === date.value) &&
+                (!term || row.textContent.toLowerCase().indexOf(term) !== -1);
+
+            row.hidden = !ok;
+            if (ok) { count++; }
+        });
+
+        shown.textContent = count;
+        if (none) { none.hidden = count !== 0; }
+    }
+
+    [q, st, pay, date].forEach(function (el) {
+        if (el) {
+            el.addEventListener('input', apply);
+            el.addEventListener('change', apply);
+        }
+    });
+
+    document.getElementById('fClear').addEventListener('click', function () {
+        [q, st, pay, date].forEach(function (el) { if (el) { el.value = ''; } });
+        apply();
     });
 })();
 </script>
