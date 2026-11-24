@@ -18,6 +18,7 @@ try {
     $details           = $controller->listDetails();
     $scheduleSummaries = $details['schedules'];
     $classSummaries    = $details['classes'];
+    $classOptions = $details['options'] ?? [];
 } catch (PDOException $e) {
     error_log($e->getMessage());
     $scheduleSummaries = [];
@@ -89,12 +90,14 @@ require __DIR__ . '/../app/views/partials/admin_start.php';
                 <input id="trainSearch" type="search" placeholder="Train number, name or station" autocomplete="off">
             </div>
             <div>
-                <label for="trainClass">Class</label>
                 <select id="trainClass">
                     <option value="">All</option>
-                    <option value="Platinum">Platinum</option>
-                    <option value="Gold">Gold</option>
-                    <option value="Silver">Silver</option>
+
+                    <?php foreach ($classOptions as $className): ?>
+                        <option value="<?= e($className) ?>">
+                            <?= e($className) ?>
+                        </option>
+                    <?php endforeach; ?>
                 </select>
             </div>
             <div>
@@ -139,7 +142,7 @@ require __DIR__ . '/../app/views/partials/admin_start.php';
                 <?php if (empty($trains)): ?>
 
                     <tr>
-                        <td colspan="10" class="empty">
+                        <td colspan="9" class="empty">
                             No train records found.
                         </td>
                     </tr>
@@ -317,7 +320,9 @@ require __DIR__ . '/../app/views/partials/admin_start.php';
         var count = 0;
         rows.forEach(function (row) {
             var ok = (!status || row.dataset.status === status) &&
-                     (!cls.value || row.dataset.classes.indexOf(cls.value) !== -1) &&
+                     (!cls.value || row.dataset.classes.split(',').map(function (value) {
+                         return value.trim();
+                     }).includes(cls.value)) &&
                      (!term || row.textContent.toLowerCase().indexOf(term) !== -1);
             row.hidden = !ok;
             if (ok) { count++; }

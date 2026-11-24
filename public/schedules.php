@@ -23,7 +23,7 @@ $search = trim($_GET['search'] ?? '');
 $statusFilter = $_GET['status'] ?? '';
 $dateFilter = $_GET['departure_date'] ?? '';
 
-$allowedStatuses = ['pending', 'confirmed', 'cancelled'];
+$allowedStatuses = ['scheduled', 'delayed', 'cancelled','completed'];
 
 // Validate filter values.
 if (!in_array($statusFilter, $allowedStatuses, true)) {
@@ -52,12 +52,12 @@ $schedules = array_filter($schedules, function ($schedule) use (
     $matchesDate = true;
 
     if ($search !== '') {
-        $matchesSearch =
-            stripos($schedules['train_number'] ?? '', $search) !== false ||
-            stripos($schedules['train_name'] ?? '', $search) !== false ||
-            stripos($schedules['origin'] ?? '', $search) !== false ||
-            stripos($schedules['destination'] ?? '', $search) !== false;
-    }
+    $matchesSearch =
+        stripos($schedule['train_number'] ?? '', $search) !== false ||
+        stripos($schedule['train_name'] ?? '', $search) !== false ||
+        stripos($schedule['origin_name'] ?? '', $search) !== false ||
+        stripos($schedule['destination_name'] ?? '', $search) !== false;
+}
 
     if ($statusFilter !== '') {
         $matchesStatus =
