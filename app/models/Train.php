@@ -21,6 +21,63 @@ class Train
         return $stmt->fetchAll();
     }
 
+    // Next upcoming (otherwise latest) non-cancelled schedule of every train,
+    // indexed by train_id. Read-only; used for the extra columns on the train list.
+    public function getScheduleSummaries(): array
+    {
+        $sql = "SELECT s.train_id,
+                       o.station_name AS origin_name,
+                       d.station_name AS destination_name,
+                       s.departure_datetime,
+                       s.arrival_datetime
+                FROM schedules s
+                INNER JOIN stations o ON o.station_id = s.origin_station_id
+                INNER JOIN stations d ON d.station_id = s.destination_station_id
+                WHERE s.schedule_id = (
+                    SELECT s2.schedule_id
+                    FROM schedules s2
+                    WHERE s2.train_id = s.train_id
+                      AND s2.status <> 'cancelled'
+                    ORDER BY (s2.departure_datetime >= NOW()) DESC,
+                             IF(s2.departure_datetime >= NOW(), s2.departure_datetime, NULL) ASC,
+                             s2.departure_datetime DESC
+                    LIMIT 1
+                )";
+
+        $rows = $this->db->query($sql)->fetchAll();
+        $summaries = [];
+
+        foreach ($rows as $row) {
+            $summaries[(int) $row['train_id']] = $row;
+        }
+
+        return $summaries;
+    }
+
+    // Seat classes offered by each train (from the M2 coaches table), indexed by train_id.
+    // Returns an empty array when the M2 seat tables are not installed.
+    public function getClassSummaries(): array
+    {
+        try {
+            $sql = "SELECT c.train_id,
+                           GROUP_CONCAT(DISTINCT c.class_name
+                                        ORDER BY tc.sort_order SEPARATOR ', ') AS classes
+                    FROM coaches c
+                    INNER JOIN travel_classes tc ON tc.class_name = c.class_name
+                    GROUP BY c.train_id";
+
+            $classes = [];
+
+            foreach ($this->db->query($sql)->fetchAll() as $row) {
+                $classes[(int) $row['train_id']] = $row['classes'];
+            }
+
+            return $classes;
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
+
     // Retrieve one train by ID
     public function getById(int $id): ?array
     {

@@ -94,12 +94,16 @@ function e($value): string
 
     <title>Add New Train | CRS Admin</title>
 
-    <link rel="stylesheet" href="assets/css/trains.css">
+    <link rel="stylesheet" href="assets/css/trains.css?v=<?= (int) @filemtime(__DIR__ . '/assets/css/trains.css') ?>">
 </head>
 
 <body>
 
-<div class="container">
+<?php
+$adminActive = 'trains';
+$adminCrumb  = 'Add New Train';
+require __DIR__ . '/../app/views/partials/admin_start.php';
+?>
 
     <header class="page-header">
         <div>
@@ -208,7 +212,7 @@ function e($value): string
 
     </section>
 
-</div>
+<?php require __DIR__ . '/../app/views/partials/admin_end.php'; ?>
 
 </body>
 </html>

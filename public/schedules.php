@@ -26,12 +26,16 @@ function e($value): string
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Schedules | CRS Admin</title>
-    <link rel="stylesheet" href="assets/css/trains.css">
+    <link rel="stylesheet" href="assets/css/trains.css?v=<?= (int) @filemtime(__DIR__ . '/assets/css/trains.css') ?>">
 </head>
 
 <body>
 
-<div class="container">
+<?php
+$adminActive = 'schedules';
+$adminCrumb  = 'Manage Schedules';
+require __DIR__ . '/../app/views/partials/admin_start.php';
+?>
 
     <?php if (!empty($_SESSION['success'])): ?>
         <div class="success-message">
@@ -130,7 +134,7 @@ function e($value): string
 
     </section>
 
-</div>
+<?php require __DIR__ . '/../app/views/partials/admin_end.php'; ?>
 
 </body>
 </html>

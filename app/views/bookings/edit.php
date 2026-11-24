@@ -4,73 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Booking | CRS Admin</title>
-    <link rel="stylesheet" href="assets/css/trains.css">
+    <link rel="stylesheet" href="assets/css/trains.css?v=<?= (int) @filemtime(__DIR__ . '/../../../public/assets/css/trains.css') ?>">
 
-    <style>
-        .cancel-dialog {
-            width: min(500px, 90%);
-            border: none;
-            border-radius: 12px;
-            padding: 28px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
-        }
-
-        .cancel-dialog::backdrop {
-            background: rgba(0, 0, 0, 0.55);
-        }
-
-        .cancel-dialog h2 {
-            margin-top: 0;
-        }
-
-        .cancel-dialog textarea {
-            width: 100%;
-            min-height: 100px;
-            box-sizing: border-box;
-            padding: 10px;
-            margin-top: 8px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            resize: vertical;
-        }
-
-        .dialog-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .btn-cancel-confirm {
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 10px 16px;
-            cursor: pointer;
-        }
-
-        .btn-dialog-close {
-            background: #6c757d;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 10px 16px;
-            cursor: pointer;
-        }
-
-        .current-cancellation {
-            margin-top: 15px;
-            padding: 12px;
-            background: #f8f9fa;
-            border-radius: 6px;
-        }
-    </style>
 </head>
 
 <body>
 
-<div class="container">
+<?php
+$adminActive = 'bookings';
+$adminCrumb  = 'Manage Booking';
+require __DIR__ . '/../partials/admin_start.php';
+?>
 
     <header class="page-header">
         <div>
@@ -428,7 +372,7 @@
 
     </section>
 
-</div>
+<?php require __DIR__ . '/../partials/admin_end.php'; ?>
 
 <script>
 const bookingForm = document.getElementById('bookingForm');

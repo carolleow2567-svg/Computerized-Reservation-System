@@ -17,6 +17,15 @@ class TrainController
         return $this->trainModel->getAll();
     }
 
+    // Extra read-only details shown on the train list (route, times, classes)
+    public function listDetails(): array
+    {
+        return [
+            'schedules' => $this->trainModel->getScheduleSummaries(),
+            'classes'   => $this->trainModel->getClassSummaries(),
+        ];
+    }
+
     // Display one train
     public function show(int $id): ?array
     {
