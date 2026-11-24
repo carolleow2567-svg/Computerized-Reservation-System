@@ -294,31 +294,6 @@ td {
     color: #166534;
 }
 
-.filter-form {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 20px;
-}
 
-.filter-form input,
-.filter-form select {
-    padding: 10px;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
-}
-
-.filter-form input {
-    flex: 1;
-    min-width: 220px;
-}
-
-.filter-form button {
-    border: none;
-    cursor: pointer;
-}
-
-small {
-    color: #64748b;
-    font-size: 12px;
-}
+/* ==========================================
+   CRS - HELP & CONTACT | MODERN DESIGN
