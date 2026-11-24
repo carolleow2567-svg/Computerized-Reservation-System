@@ -94,7 +94,7 @@ function e($value): string
 
     <title>Add New Train | CRS Admin</title>
 
-    <link rel="stylesheet" href="assets/css/trains.css?v=<?= (int) @filemtime(__DIR__ . '/assets/css/trains.css') ?>">
+    <link rel="stylesheet" href="assets/css/m7.css?v=<?= (int) @filemtime(__DIR__ . '/assets/css/m7.css') ?>">
 </head>
 
 <body>
