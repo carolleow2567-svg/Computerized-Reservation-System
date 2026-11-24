@@ -54,10 +54,16 @@ class Train
         return $summaries;
     }
 
-    // Seat classes offered by each train (from the M2 coaches table), indexed by train_id.
-    // Returns an empty array when the M2 seat tables are not installed.
+    // Seat classes offered by each train (a train can have several), indexed by train_id.
+    // Source 1: train_classes (train_id, class_id) joined to classes.
+    // Source 2 (fallback): the M2 coaches table, so trains still show their classes
+    // if train_classes has no rows for them or the tables differ.
+    // Each source is optional: if a table is missing, that source is skipped.
     public function getClassSummaries(): array
     {
+        $result = [];
+
+        // Fallback first, so train_classes (below) wins when it has data
         try {
             $sql = "SELECT c.train_id,
                            GROUP_CONCAT(DISTINCT c.class_name
@@ -66,16 +72,49 @@ class Train
                     INNER JOIN travel_classes tc ON tc.class_name = c.class_name
                     GROUP BY c.train_id";
 
-            $classes = [];
+            foreach ($this->db->query($sql)->fetchAll() as $row) {
+                $result[(int) $row['train_id']] = $row['classes'];
+            }
+        } catch (PDOException $e) {
+            error_log($e->getMessage());
+        }
+
+        try {
+            $sql = "SELECT tcl.train_id,
+                           GROUP_CONCAT(DISTINCT cl.class_name
+                                        ORDER BY cl.class_id SEPARATOR ', ') AS classes
+                    FROM train_classes tcl
+                    INNER JOIN classes cl ON cl.class_id = tcl.class_id
+                    GROUP BY tcl.train_id";
 
             foreach ($this->db->query($sql)->fetchAll() as $row) {
-                $classes[(int) $row['train_id']] = $row['classes'];
+                $result[(int) $row['train_id']] = $row['classes'];
             }
-
-            return $classes;
         } catch (PDOException $e) {
-            return [];
+            error_log($e->getMessage());
         }
+
+        return $result;
+    }
+
+    // Class names for the filter drop-down on the train list
+    public function getClassOptions(): array
+    {
+        foreach ([
+            "SELECT class_name FROM classes ORDER BY class_id",
+            "SELECT class_name FROM travel_classes ORDER BY sort_order",
+        ] as $sql) {
+            try {
+                $names = $this->db->query($sql)->fetchAll(PDO::FETCH_COLUMN);
+                if (!empty($names)) {
+                    return $names;
+                }
+            } catch (PDOException $e) {
+                error_log($e->getMessage());
+            }
+        }
+
+        return [];
     }
 
     // Retrieve one train by ID

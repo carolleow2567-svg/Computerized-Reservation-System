@@ -105,6 +105,7 @@ class Booking
 
                     t.train_number,
                     t.train_name,
+                    t.train_type,
 
                     o.station_name AS origin_name,
                     d.station_name AS destination_name,

@@ -23,6 +23,7 @@ class TrainController
         return [
             'schedules' => $this->trainModel->getScheduleSummaries(),
             'classes'   => $this->trainModel->getClassSummaries(),
+            'options'   => $this->trainModel->getClassOptions(),
         ];
     }
 

@@ -89,20 +89,20 @@ require __DIR__ . '/../app/views/partials/admin_start.php';
                 <input id="trainSearch" type="search" placeholder="Train number, name or station" autocomplete="off">
             </div>
             <div>
-                <label for="trainStatus">Status</label>
-                <select id="trainStatus">
-                    <option value="">All</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                </select>
-            </div>
-            <div>
                 <label for="trainClass">Class</label>
                 <select id="trainClass">
                     <option value="">All</option>
                     <option value="Platinum">Platinum</option>
                     <option value="Gold">Gold</option>
                     <option value="Silver">Silver</option>
+                </select>
+            </div>
+            <div>
+                <label for="trainStatus">Status</label>
+                <select id="trainStatus">
+                    <option value="">All</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
                 </select>
             </div>
             <button type="button" class="btn-secondary" id="trainClear">Clear</button>
@@ -122,11 +122,11 @@ require __DIR__ . '/../app/views/partials/admin_start.php';
 
                 <thead>
                     <tr>
-                        <th>Train No.</th>
+                        <th data-sortable>Train No.</th>
                         <th>Train Name</th>
-                        <th>Origin</th>
-                        <th>Destination</th>
-                        <th>Departs</th>
+                        <th>Type</th>
+                        <th>Route</th>
+                        <th data-sortable>Departs</th>
                         <th>Arrives</th>
                         <th>Class</th>
                         <th>Status</th>
@@ -139,7 +139,7 @@ require __DIR__ . '/../app/views/partials/admin_start.php';
                 <?php if (empty($trains)): ?>
 
                     <tr>
-                        <td colspan="9" class="empty">
+                        <td colspan="10" class="empty">
                             No train records found.
                         </td>
                     </tr>
@@ -152,7 +152,7 @@ require __DIR__ . '/../app/views/partials/admin_start.php';
                         $tid      = (int) $train['train_id'];
                         $sched    = $scheduleSummaries[$tid] ?? null;
                         $classes  = $classSummaries[$tid] ?? '';
-                        $classTxt = $classes !== '' ? $classes : $train['train_type'];
+                        $classTxt = $classes !== '' ? $classes : '—';
                         ?>
 
                         <tr data-status="<?= e($train['status']) ?>"
@@ -162,11 +162,14 @@ require __DIR__ . '/../app/views/partials/admin_start.php';
 
                             <td><?= e($train['train_name']) ?></td>
 
-                            <td><?= $sched ? e($sched['origin_name']) : '<span class="mut">&mdash;</span>' ?></td>
+                            <td><?= e($train['train_type']) ?></td>
 
-                            <td><?= $sched ? e($sched['destination_name']) : '<span class="mut">&mdash;</span>' ?></td>
+                            <td><?= $sched ? e($sched['origin_name']) : '<span class="mut">&mdash;</span>' ?>
+                                <br>&nbsp;→
+                                <?= $sched ? e($sched['destination_name']) : '<span class="mut">&mdash;</span>' ?>
+                            </td>
 
-                            <td>
+                            <td data-value="<?= $sched ? e($sched['departure_datetime']) : '' ?>">
                                 <?php if ($sched): ?>
                                     <?= e(date('H:i', strtotime($sched['departure_datetime']))) ?>
                                     <br><small><?= e(date('d M Y', strtotime($sched['departure_datetime']))) ?></small>
@@ -280,7 +283,7 @@ require __DIR__ . '/../app/views/partials/admin_start.php';
             <dt>Arrival</dt>
             <dd><?= $sched ? e(date('d M Y, H:i', strtotime($sched['arrival_datetime']))) : '&mdash;' ?></dd>
 
-            <dt>Classes</dt>
+            <dt>Class</dt>
             <dd><?= e($classTxt) ?></dd>
 
             <dt>Schedules</dt>
@@ -329,6 +332,50 @@ require __DIR__ . '/../app/views/partials/admin_start.php';
     clear.addEventListener('click', function () { q.value = ''; st.value = ''; cls.value = ''; apply(); });
 })();
 </script>
+
+<script>
+// Click a header marked data-sortable to sort the table by that column.
+(function () {
+    document.querySelectorAll('th[data-sortable]').forEach(function (th) {
+        th.setAttribute('data-sort', 'none');
+        th.tabIndex = 0;
+
+        function sort() {
+            var table = th.closest('table');
+            var tbody = table.tBodies[0];
+            var col = th.cellIndex;
+            var dir = th.getAttribute('data-sort') === 'asc' ? 'desc' : 'asc';
+
+            table.querySelectorAll('th[data-sortable]').forEach(function (h) {
+                h.setAttribute('data-sort', 'none');
+            });
+            th.setAttribute('data-sort', dir);
+
+            var rows = Array.prototype.slice.call(tbody.rows).filter(function (r) {
+                return r.cells.length > col;      // skip the "no records" row
+            });
+
+            function val(row) {
+                var c = row.cells[col];
+                return (c.getAttribute('data-value') || c.textContent).trim();
+            }
+
+            rows.sort(function (a, b) {
+                var r = val(a).localeCompare(val(b), undefined, {numeric: true, sensitivity: 'base'});
+                return dir === 'asc' ? r : -r;
+            });
+
+            rows.forEach(function (r) { tbody.appendChild(r); });
+        }
+
+        th.addEventListener('click', sort);
+        th.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); sort(); }
+        });
+    });
+})();
+</script>
+
 <?php require __DIR__ . '/../app/views/partials/admin_end.php'; ?>
 
 </body>

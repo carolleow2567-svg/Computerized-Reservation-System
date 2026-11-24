@@ -906,3 +906,23 @@ td form {
     display: block;
     margin-bottom: 8px;
 }
+
+th[data-sort] {
+    cursor: pointer;
+    user-select: none;
+}
+th[data-sort]:hover {
+    color: var(--ink);
+}
+th[data-sort]::after {
+    content: " \2195";
+    opacity: .4;
+}
+th[data-sort="asc"]::after {
+    content: " \2191";
+    opacity: 1;
+}
+th[data-sort="desc"]::after {
+    content: " \2193";
+    opacity: 1;
+}

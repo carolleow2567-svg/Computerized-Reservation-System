@@ -144,64 +144,37 @@ require __DIR__ . '/../app/views/partials/admin_start.php';
     </header>
 
     <section class="table-section" aria-label="Search and filters">
-
-        <form method="GET" class="filter-form">
-
-            <div class="filter-field filter-field-grow">
-                <label for="bk-search">Search</label>
-                <input
-                    id="bk-search"
-                    type="text"
-                    name="search"
-                    placeholder="Reference, passenger, email or train"
-                    value="<?= e($search) ?>"
-                >
+        <div class="toolbar">
+            <div class="grow">
+                <label for="fSearch">Search</label>
+                <input id="fSearch" type="search" autocomplete="off"
+                    placeholder="Reference, passenger, email or train">
             </div>
-
-            <div class="filter-field">
-                <label for="bk-status">Booking status</label>
-                <select id="bk-status" name="status">
-                    <option value="">All Booking Statuses</option>
+            <div>
+                <label for="fStatus">Booking status</label>
+                <select id="fStatus">
+                    <option value="">All</option>
                     <?php foreach ($allowedStatuses as $status): ?>
-                        <option value="<?= e($status) ?>"
-                            <?= $status === $statusFilter ? 'selected' : '' ?>>
-                            <?= e(ucfirst($status)) ?>
-                        </option>
+                        <option value="<?= e($status) ?>"><?= e(ucfirst($status)) ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
-
-            <div class="filter-field">
-                <label for="bk-payment">Payment status</label>
-                <select id="bk-payment" name="payment_status">
-                    <option value="">All Payment Statuses</option>
+            <div>
+                <label for="fPayment">Payment status</label>
+                <select id="fPayment">
+                    <option value="">All</option>
                     <?php foreach ($allowedPaymentStatuses as $payment): ?>
-                        <option  value="<?= e($payment) ?>"
-                            <?= $payment === $paymentFilter ? 'selected' : '' ?>>
-                            <?= e(ucfirst($payment)) ?>
-                        </option>
+                        <option value="<?= e($payment) ?>"><?= e(ucfirst($payment)) ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
-
-            <div class="filter-field">
-                <label for="bk-date">Departure date</label>
-                <input
-                    id="bk-date"
-                    type="date"
-                    name="departure_date"
-                    value="<?= e($dateFilter) ?>">
+            <div>
+                <label for="fDate">Departure date</label>
+                <input id="fDate" type="date">
             </div>
-
-            <div class="filter-buttons">
-                <button type="submit" class="btn-primary">Apply Filters</button>
-
-                <a href="bookings.php" class="btn-secondary">Reset</a>
-            </div>
-        </form>
-
-        <div class="filter-count"><?= count($bookings) ?> booking(s) found</div>
-
+            <button type="button" class="btn-secondary" id="fClear">Clear</button>
+        </div>
+        <div class="filter-count"><span id="fShown"><?= count($bookings) ?></span> booking(s) found</div>
     </section>
 
     <section class="table-section card-flush" aria-label="Booking records">
@@ -213,7 +186,7 @@ require __DIR__ . '/../app/views/partials/admin_start.php';
 
         <div class="table-wrapper">
 
-            <table>
+            <table id="recordTable">
 
                 <thead>
                     <tr>
@@ -221,7 +194,7 @@ require __DIR__ . '/../app/views/partials/admin_start.php';
                         <th>Passenger</th>
                         <th>Train</th>
                         <th>Route</th>
-                        <th>Departure</th>
+                        <th data-sortable>Departs</th>
                         <th>Seats-Coach Class</th>
                         <th>Payment</th>
                         <th>Booking</th>
@@ -248,7 +221,9 @@ require __DIR__ . '/../app/views/partials/admin_start.php';
                         $dialogId = 'booking-dialog-' . (int)$booking['booking_id'];
                         ?>
 
-                        <tr>
+                        <tr data-status="<?= e($booking['booking_status']) ?>"
+                            data-payment="<?= e($booking['payment_status']) ?>"
+                            data-date="<?= e(date('Y-m-d', strtotime($booking['departure_datetime']))) ?>">
 
                             <td class="b">
                                 <?= e($booking['booking_reference']) ?>
@@ -280,12 +255,17 @@ require __DIR__ . '/../app/views/partials/admin_start.php';
 
                             <td>
                                 <?= e($booking['origin_name']) ?>
-                                →
+                                <br>&nbsp;→
                                 <?= e($booking['destination_name']) ?>
                             </td>
 
-                            <td>
-                                <?= e($booking['departure_datetime']) ?>
+                            <td data-value="<?= e($booking['departure_datetime']) ?>">
+                                <?php if ($booking): ?>
+                                    <?= e(date('H:i', strtotime($booking['departure_datetime']))) ?>
+                                    <br><small><?= e(date('d M Y', strtotime($booking['departure_datetime']))) ?></small>
+                                <?php else: ?>
+                                    <span class="mut">&mdash;</span>
+                                <?php endif; ?>
                             </td>
 
                             <td>
@@ -346,7 +326,55 @@ require __DIR__ . '/../app/views/partials/admin_start.php';
 
         </div>
 
+        <div class="empty" id="fNoMatch" hidden>
+            <div class="b">No records found</div>
+            Adjust the search or filters.
+        </div>
+
     </section>
+
+    <script>
+// Click a header marked data-sortable to sort the table by that column.
+(function () {
+    document.querySelectorAll('th[data-sortable]').forEach(function (th) {
+        th.setAttribute('data-sort', 'none');
+        th.tabIndex = 0;
+
+        function sort() {
+            var table = th.closest('table');
+            var tbody = table.tBodies[0];
+            var col = th.cellIndex;
+            var dir = th.getAttribute('data-sort') === 'asc' ? 'desc' : 'asc';
+
+            table.querySelectorAll('th[data-sortable]').forEach(function (h) {
+                h.setAttribute('data-sort', 'none');
+            });
+            th.setAttribute('data-sort', dir);
+
+            var rows = Array.prototype.slice.call(tbody.rows).filter(function (r) {
+                return r.cells.length > col;      // skip the "no records" row
+            });
+
+            function val(row) {
+                var c = row.cells[col];
+                return (c.getAttribute('data-value') || c.textContent).trim();
+            }
+
+            rows.sort(function (a, b) {
+                var r = val(a).localeCompare(val(b), undefined, {numeric: true, sensitivity: 'base'});
+                return dir === 'asc' ? r : -r;
+            });
+
+            rows.forEach(function (r) { tbody.appendChild(r); });
+        }
+
+        th.addEventListener('click', sort);
+        th.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); sort(); }
+        });
+    });
+})();
+</script>
 
 <?php require __DIR__ . '/../app/views/partials/admin_end.php'; ?>
 
@@ -474,6 +502,9 @@ require __DIR__ . '/../app/views/partials/admin_start.php';
 
                     <dt>Train Name</dt>
 <dd><?= e($details['train_name']) ?></dd>
+
+                    <dt>Train Type</dt>
+<dd><?= e($details['train_type']) ?></dd>
 
                     <dt>Route</dt>
 <dd><?= e($details['origin_name']) ?>
