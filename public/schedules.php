@@ -61,12 +61,12 @@ $schedules = array_filter($schedules, function ($schedule) use (
 
     if ($statusFilter !== '') {
         $matchesStatus =
-            $schedules['status'] === $statusFilter;
+            $schedule['status'] === $statusFilter;
     }
 
     if ($dateFilter !== '') {
         $matchesDate =
-            date('Y-m-d', strtotime($schedules['departure_datetime'])) === $dateFilter;
+            date('Y-m-d', strtotime($schedule['departure_datetime'])) === $dateFilter;
     }
 
     return $matchesSearch &&
