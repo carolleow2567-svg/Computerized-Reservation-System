@@ -47,21 +47,3 @@ if (faqSearch) {
     });
 }
 
-
-// Contact Form - Front-end Demo
-const contactForm = document.getElementById('contactForm');
-
-if (contactForm) {
-    contactForm.addEventListener('submit', function (event) {
-        event.preventDefault();
-
-        const formMessage = document.getElementById('formMessage');
-
-        formMessage.textContent =
-            'Your form is working, but message delivery has not been connected yet.';
-
-        formMessage.style.color = '#b7791f';
-
-        contactForm.reset();
-    });
-}

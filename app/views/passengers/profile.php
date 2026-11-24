@@ -4,10 +4,8 @@
 // CRS - Passenger Profile
 // ==========================================
 
-// Passenger data will be provided by the controller.
 $passenger = $passenger ?? null;
 
-// Escape output to prevent HTML injection.
 $escape = static function ($value) {
     return htmlspecialchars(
         (string) ($value ?? ''),
@@ -26,15 +24,13 @@ $escape = static function ($value) {
 
     <title>Passenger Profile | CRS</title>
 
-    <!-- Passenger Profile CSS -->
-    <link rel="stylesheet" href="assets/css/trains.css">
+    <link rel="stylesheet" href="assets/css/m5.css">
 </head>
 
 <body>
 
 <div class="container">
 
-    <!-- Page Header -->
     <div class="page-header">
 
         <div>
@@ -48,41 +44,28 @@ $escape = static function ($value) {
 
     </div>
 
-
     <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
-
         <div class="success-message">
             Profile updated successfully!
         </div>
-
     <?php endif; ?>
 
-
     <?php if (!empty($_SESSION['success'])): ?>
-
         <div class="success-message">
             <?= $escape($_SESSION['success']) ?>
         </div>
-
         <?php unset($_SESSION['success']); ?>
-
     <?php endif; ?>
 
-
     <?php if (!empty($_SESSION['error'])): ?>
-
         <div class="error-message">
             <?= $escape($_SESSION['error']) ?>
         </div>
-
         <?php unset($_SESSION['error']); ?>
-
     <?php endif; ?>
-
 
     <?php if ($passenger): ?>
 
-        <!-- Profile Information -->
         <div class="table-section">
 
             <div class="table-heading">
@@ -94,85 +77,54 @@ $escape = static function ($value) {
 
                 <div class="form-group">
                     <label>Passenger ID</label>
-
                     <input
                         type="text"
                         value="<?= $escape($passenger['id'] ?? '') ?>"
-                        readonly
-                    >
+                        readonly>
                 </div>
-
 
                 <div class="form-group">
                     <label>Full Name</label>
-
                     <input
                         type="text"
                         value="<?= $escape($passenger['fullname'] ?? '') ?>"
-                        readonly
-                    >
+                        readonly>
                 </div>
-
 
                 <div class="form-group">
                     <label>Email Address</label>
-
                     <input
                         type="email"
                         value="<?= $escape($passenger['email'] ?? '') ?>"
-                        readonly
-                    >
+                        readonly>
                 </div>
-
 
                 <div class="form-group">
                     <label>Phone Number</label>
-
                     <input
                         type="text"
                         value="<?= $escape($passenger['phone'] ?? '') ?>"
-                        readonly
-                    >
+                        readonly>
                 </div>
-
-
-                <div class="form-group">
-                    <label>Identity Number</label>
-
-                    <input
-                        type="text"
-                        value="<?= $escape($passenger['identity'] ?? '') ?>"
-                        readonly
-                    >
-                </div>
-
 
                 <div class="form-group">
                     <label>Registration Date</label>
-
                     <input
                         type="text"
                         value="<?= $escape($passenger['created_at'] ?? '') ?>"
-                        readonly
-                    >
+                        readonly>
                 </div>
 
-
-                <!-- Account Information -->
                 <div class="form-group">
                     <label>Account Type</label>
-
                     <input
                         type="text"
-                        value="Passenger"
-                        readonly
-                    >
+                        value="<?= $escape(ucfirst($passenger['role'] ?? 'passenger')) ?>"
+                        readonly>
                 </div>
 
             </div>
 
-
-            <!-- Profile Actions -->
             <div class="form-actions">
 
                 <a href="passenger-edit.php" class="btn-edit">
@@ -185,7 +137,6 @@ $escape = static function ($value) {
 
     <?php else: ?>
 
-        <!-- No Passenger Information -->
         <div class="table-section">
 
             <div class="empty">

@@ -1,4 +1,3 @@
-
 <?php
 
 class Passenger
@@ -10,11 +9,19 @@ class Passenger
         $this->pdo = $pdo;
     }
 
+    // Find a passenger from the shared users table.
     public function findById($id)
     {
-        $sql = "SELECT id, fullname, email, phone, identity, created_at
-                FROM passengers
-                WHERE id = :id
+        $sql = "SELECT
+                    user_id AS id,
+                    full_name AS fullname,
+                    email,
+                    phone_number AS phone,
+                    role,
+                    created_at
+                FROM users
+                WHERE user_id = :id
+                  AND role = 'passenger'
                 LIMIT 1";
 
         $stmt = $this->pdo->prepare($sql);
@@ -23,14 +30,15 @@ class Passenger
         return $stmt->fetch();
     }
 
-    public function updateProfile($id, $fullname, $email, $phone, $identity)
+    // Update only the authenticated passenger's profile fields.
+    public function updateProfile($id, $fullname, $email, $phone)
     {
-        $sql = "UPDATE passengers
-                SET fullname = :fullname,
+        $sql = "UPDATE users
+                SET full_name = :fullname,
                     email = :email,
-                    phone = :phone,
-                    identity = :identity
-                WHERE id = :id";
+                    phone_number = :phone
+                WHERE user_id = :id
+                  AND role = 'passenger'";
 
         $stmt = $this->pdo->prepare($sql);
 
@@ -38,7 +46,38 @@ class Passenger
             'fullname' => $fullname,
             'email' => $email,
             'phone' => $phone,
-            'identity' => $identity,
+            'id' => $id
+        ]);
+    }
+
+    // Verify the current password before replacing its stored hash.
+    public function changePassword($id, $currentPassword, $newPassword)
+    {
+        $stmt = $this->pdo->prepare(
+            "SELECT password
+             FROM users
+             WHERE user_id = :id
+               AND role = 'passenger'
+             LIMIT 1"
+        );
+        $stmt->execute(['id' => $id]);
+        $storedHash = $stmt->fetchColumn();
+
+        if (!$storedHash || !password_verify($currentPassword, $storedHash)) {
+            return false;
+        }
+
+        $newHash = password_hash($newPassword, PASSWORD_DEFAULT);
+
+        $update = $this->pdo->prepare(
+            "UPDATE users
+             SET password = :password
+             WHERE user_id = :id
+               AND role = 'passenger'"
+        );
+
+        return $update->execute([
+            'password' => $newHash,
             'id' => $id
         ]);
     }
