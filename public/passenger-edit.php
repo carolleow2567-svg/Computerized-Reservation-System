@@ -16,7 +16,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fullname = trim($_POST['fullname'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $phone = trim($_POST['phone'] ?? '');
-    $identity = trim($_POST['identity'] ?? '');
 
     if ($fullname === '' || $email === '') {
         $error = 'Full name and email are required.';
@@ -25,11 +24,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         try {
             $passengerModel->updateProfile(
-                $passengerId,
-                $fullname,
-                $email,
-                $phone,
-                $identity
+            $passengerId,
+            $fullname,
+            $email,
+            $phone
             );
 
             header('Location: passenger-profile.php?updated=1');

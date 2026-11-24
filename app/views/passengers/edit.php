@@ -13,7 +13,7 @@ $e = function ($value) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Passenger Profile | CRS</title>
-    <link rel="stylesheet" href="assets/css/trains.css">
+    <link rel="stylesheet" href="assets/css/m5.css">
 </head>
 <body>
 
@@ -33,8 +33,6 @@ $e = function ($value) {
         <?php endif; ?>
 
         <form method="POST" action="passenger-edit.php">
-
-            <input type="hidden" name="id" value="<?= $e($passenger['id'] ?? '') ?>">
 
             <div class="form-group">
                 <label for="fullname">Full Name</label>
@@ -66,16 +64,6 @@ $e = function ($value) {
                     name="phone"
                     value="<?= $e($passenger['phone'] ?? '') ?>"
                     maxlength="20">
-            </div>
-
-            <div class="form-group">
-                <label for="identity">Identity Number</label>
-                <input
-                    type="text"
-                    id="identity"
-                    name="identity"
-                    value="<?= $e($passenger['identity'] ?? '') ?>"
-                    maxlength="30">
             </div>
 
             <div class="form-actions">

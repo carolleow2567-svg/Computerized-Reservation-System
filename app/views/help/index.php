@@ -41,10 +41,10 @@ $faqs = [
     <title>Help & Contact | CRS</title>
 
     <!-- Main CRS Stylesheet -->
-    <link rel="stylesheet" href="assets/css/trains.css">
+    <link rel="stylesheet" href="assets/css/m5.css">
 
     <!-- Help & Contact JavaScript -->
-    <script src="assets/js/help.js" defer></script>
+    <script src="assets/js/m5_faq.js" defer></script>
 </head>
 
 <body>
@@ -158,7 +158,7 @@ $faqs = [
 
         <h2>Send Us a Message</h2>
 
-        <form id="contactForm" class="contact-form">
+        <form id="contactForm" class="contact-form" method="POST" action="">
 
             <label for="contactName">Full Name</label>
             <input
@@ -200,8 +200,14 @@ $faqs = [
                 Send Message
             </button>
 
-            <p id="formMessage" class="help-form-message">
-                Please complete all fields before submitting.
+            <p
+                id="formMessage"
+                class="help-form-message"
+                role="status"
+                aria-live="polite"
+                style="color: <?= ($formMessageType ?? '') === 'success' ? '#15803d' : '#dc2626' ?>;"
+            >
+            <?= htmlspecialchars($formMessage ?? '', ENT_QUOTES, 'UTF-8') ?>
             </p>
 
         </form>

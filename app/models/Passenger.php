@@ -10,12 +10,20 @@ class Passenger
         $this->pdo = $pdo;
     }
 
+    // Find passenger from users table
     public function findById($id)
     {
-        $sql = "SELECT id, fullname, email, phone, identity, created_at
-                FROM passengers
-                WHERE id = :id
-                LIMIT 1";
+        $sql = "SELECT
+            user_id AS id,
+            full_name AS fullname,
+            email,
+            phone_number AS phone,
+            role,
+            created_at
+        FROM users
+        WHERE user_id = :id
+        AND role = 'passenger'
+        LIMIT 1";
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['id' => $id]);
@@ -23,14 +31,15 @@ class Passenger
         return $stmt->fetch();
     }
 
-    public function updateProfile($id, $fullname, $email, $phone, $identity)
+    // Update passenger profile
+    public function updateProfile($id, $fullname, $email, $phone)
     {
-        $sql = "UPDATE passengers
-                SET fullname = :fullname,
+        $sql = "UPDATE users
+                SET full_name = :fullname,
                     email = :email,
-                    phone = :phone,
-                    identity = :identity
-                WHERE id = :id";
+                    phone_number = :phone
+                WHERE user_id = :id
+                AND role = 'passenger'";
 
         $stmt = $this->pdo->prepare($sql);
 
@@ -38,7 +47,6 @@ class Passenger
             'fullname' => $fullname,
             'email' => $email,
             'phone' => $phone,
-            'identity' => $identity,
             'id' => $id
         ]);
     }
