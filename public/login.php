@@ -41,36 +41,86 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Passenger Login - CRS</title>
+
+    <link rel="stylesheet" href="/Computerized-Reservation-System/public/assets/css/auth.css">
 </head>
+
 <body>
 
-    <h1>Passenger Login</h1>
-    <p>Welcome to the Computerized Reservation System.</p>
+    <div class="login-layout">
 
-    <?php if ($error !== ''): ?>
-        <p style="color: red;">
-            <?= htmlspecialchars($error) ?>
-        </p>
-    <?php endif; ?>
+        <!-- LEFT PANEL -->
+        <section class="login-left">
 
-    <form method="POST" action="login.php">
+            <h1>CRS<span>.</span></h1>
 
-        <label>Email:</label><br>
-        <input type="email" name="email" required>
-        <br><br>
+            <h2>Welcome to Computerized Reservation System</h2>
 
-        <label>Password:</label><br>
-        <input type="password" name="password" required>
-        <br><br>
+            <p>
+                Your journey starts here.
+                Log in to manage your train reservations
+                and travel information.
+            </p>
 
-        <button type="submit">Login</button>
+        </section>
 
-    </form>
+        <!-- RIGHT PANEL -->
+        <section class="login-right">
+
+            <div class="login-card">
+
+                <h2>Passenger Login</h2>
+
+                <p>
+                    Please enter your account details to continue.
+                </p>
+
+                <?php if ($error !== ''): ?>
+                    <p class="login-error">
+                        <?= htmlspecialchars($error) ?>
+                    </p>
+                <?php endif; ?>
+
+                <form method="POST" action="login.php">
+
+                    <label for="email">Email Address</label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Enter your email"
+                        required
+                    >
+
+                    <label for="password">Password</label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Enter your password"
+                        required
+                    >
+
+                    <button type="submit">Login</button>
+
+                </form>
+
+            </div>
+
+        </section>
+
+    </div>
 
 </body>
 </html>
