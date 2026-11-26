@@ -18,6 +18,64 @@ function e($value): string
     return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 }
 
+$search = trim($_GET['search'] ?? '');
+
+$statusFilter = $_GET['status'] ?? '';
+$dateFilter = $_GET['departure_date'] ?? '';
+
+$allowedStatuses = ['scheduled', 'delayed', 'cancelled','completed'];
+
+// Validate filter values.
+if (!in_array($statusFilter, $allowedStatuses, true)) {
+    $statusFilter = '';
+}
+
+// Accept only a valid YYYY-MM-DD date.
+if (
+    $dateFilter !== '' &&
+    (
+        !preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateFilter) ||
+        !DateTime::createFromFormat('!Y-m-d', $dateFilter)
+    )
+) {
+    $dateFilter = '';
+}
+
+// Apply search and all filters together.
+$schedules = array_filter($schedules, function ($schedule) use (
+    $search,
+    $statusFilter,
+    $dateFilter
+) {
+    $matchesSearch = true;
+    $matchesStatus = true;
+    $matchesDate = true;
+
+    if ($search !== '') {
+    $matchesSearch =
+        stripos($schedule['train_number'] ?? '', $search) !== false ||
+        stripos($schedule['train_name'] ?? '', $search) !== false ||
+        stripos($schedule['origin_name'] ?? '', $search) !== false ||
+        stripos($schedule['destination_name'] ?? '', $search) !== false;
+}
+
+    if ($statusFilter !== '') {
+        $matchesStatus =
+            $schedule['status'] === $statusFilter;
+    }
+
+    if ($dateFilter !== '') {
+        $matchesDate =
+            date('Y-m-d', strtotime($schedule['departure_datetime'])) === $dateFilter;
+    }
+
+    return $matchesSearch &&
+           $matchesStatus &&
+           $matchesDate;
+});
+
+$totalSchedules = count($schedules);
+
 ?>
 
 <!DOCTYPE html>
@@ -26,12 +84,16 @@ function e($value): string
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Schedules | CRS Admin</title>
-    <link rel="stylesheet" href="assets/css/trains.css">
+    <link rel="stylesheet" href="assets/css/m7.css?v=<?= (int) @filemtime(__DIR__ . '/assets/css/m7.css') ?>">
 </head>
 
 <body>
 
-<div class="container">
+<?php
+$adminActive = 'schedules';
+$adminCrumb  = 'Manage Schedules';
+require __DIR__ . '/../app/views/partials/admin_start.php';
+?>
 
     <?php if (!empty($_SESSION['success'])): ?>
         <div class="success-message">
@@ -58,6 +120,32 @@ function e($value): string
         </a>
     </header>
 
+    <section class="table-section" aria-label="Search and filters">
+        <div class="toolbar">
+            <div class="grow">
+                <label for="fSearch">Search</label>
+                <input id="fSearch" type="search" autocomplete="off"
+                    placeholder="Train, origin or destination">
+            </div>
+            <div>
+                <label for="fStatus">Status</label>
+                <select id="fStatus">
+                    <option value="">All</option>
+                    <option value="scheduled">Scheduled</option>
+                    <option value="delayed">Delayed</option>
+                    <option value="cancelled">Cancelled</option>
+                    <option value="completed">Completed</option>
+                </select>
+            </div>
+            <div>
+                <label for="fDate">Departure date</label>
+                <input id="fDate" type="date">
+            </div>
+            <button type="button" class="btn-secondary" id="fClear">Clear</button>
+        </div>
+        <div class="filter-count"><span id="fShown"><?= count($schedules) ?></span> schedule(s) found</div>
+    </section>
+
     <section class="table-section">
 
         <div class="table-heading">
@@ -66,15 +154,14 @@ function e($value): string
         </div>
 
         <div class="table-wrapper">
-            <table>
+            <table id="recordTable">
                 <thead>
                     <tr>
                         <th>Schedule ID</th>
                         <th>Train</th>
-                        <th>Origin</th>
-                        <th>Destination</th>
-                        <th>Departure</th>
-                        <th>Arrival</th>
+                        <th>Route</th>
+                        <th data-sortable>Departs</th>
+                        <th>Arrives</th>
                         <th>Fare (RM)</th>
                         <th>Status</th>
                         <th>Actions</th>
@@ -82,27 +169,59 @@ function e($value): string
                 </thead>
 
                 <tbody>
+                    
                 <?php if (empty($schedules)): ?>
                     <tr>
                         <td colspan="8" class="empty">
                             No schedule records found.
                         </td>
                     </tr>
+
                 <?php else: ?>
+
                     <?php foreach ($schedules as $schedule): ?>
-                        <tr>
+
+
+                        <tr data-status="<?= e($schedule['status']) ?>"
+                            data-date="<?= e(date('Y-m-d', strtotime($schedule['departure_datetime']))) ?>">
+                            
                             <td><?= e($schedule['schedule_id']) ?></td>
+
                             <td>
                                 <?= e($schedule['train_number']) ?><br>
                                 <?= e($schedule['train_name']) ?>
                             </td>
-                            <td><?= e($schedule['origin_name']) ?></td>
-                            <td><?= e($schedule['destination_name']) ?></td>
-                            <td><?= e($schedule['departure_datetime']) ?></td>
-                            <td><?= e($schedule['arrival_datetime']) ?></td>
+
+                            <td>
+                                <?= e($schedule['origin_name']) ?>
+                                <br>&nbsp;→
+                                <?= e($schedule['destination_name']) ?>
+                            </td>
+                            
+                            <td data-value="<?= $schedule ? e($schedule['departure_datetime']) : '' ?>">
+                                <?php if ($schedule): ?>
+                                    <?= e(date('H:i', strtotime($schedule['departure_datetime']))) ?>
+                                    <br><small><?= e(date('d M Y', strtotime($schedule['departure_datetime']))) ?></small>
+                                <?php else: ?>
+                                    <span class="mut">&mdash;</span>
+                                <?php endif; ?>
+                            </td>
+                            
+                            <td>
+                                <?php if ($schedule): ?>
+                                    <?= e(date('H:i', strtotime($schedule['arrival_datetime']))) ?>
+                                    <br><small><?= e(date('d M Y', strtotime($schedule['arrival_datetime']))) ?></small>
+                                <?php else: ?>
+                                    <span class="mut">&mdash;</span>
+                                <?php endif; ?>
+                            </td>
+
                             <td><?= e(number_format((float)$schedule['base_fare'], 2)) ?></td>
+                            
                             <td><span class="schedule-status <?= e($schedule['status']) ?>">
-                                <?= e(ucfirst($schedule['status'])) ?></span></td>
+                                <?= e(ucfirst($schedule['status'])) ?></span>
+                            </td>
+                            
                             <td><a href="schedule-edit.php?id=<?= e($schedule['schedule_id']) ?>"
                                     class="btn-edit">Edit</a>
                                     
@@ -128,9 +247,103 @@ function e($value): string
             </table>
         </div>
 
+        <div class="empty" id="fNoMatch" hidden>
+            <div class="b">No records found</div>
+            Adjust the search or filters.
+        </div>
+
     </section>
 
-</div>
+<script>
+// Click a header marked data-sortable to sort the table by that column.
+(function () {
+    document.querySelectorAll('th[data-sortable]').forEach(function (th) {
+        th.setAttribute('data-sort', 'none');
+        th.tabIndex = 0;
+
+        function sort() {
+            var table = th.closest('table');
+            var tbody = table.tBodies[0];
+            var col = th.cellIndex;
+            var dir = th.getAttribute('data-sort') === 'asc' ? 'desc' : 'asc';
+
+            table.querySelectorAll('th[data-sortable]').forEach(function (h) {
+                h.setAttribute('data-sort', 'none');
+            });
+            th.setAttribute('data-sort', dir);
+
+            var rows = Array.prototype.slice.call(tbody.rows).filter(function (r) {
+                return r.cells.length > col;      // skip the "no records" row
+            });
+
+            function val(row) {
+                var c = row.cells[col];
+                return (c.getAttribute('data-value') || c.textContent).trim();
+            }
+
+            rows.sort(function (a, b) {
+                var r = val(a).localeCompare(val(b), undefined, {numeric: true, sensitivity: 'base'});
+                return dir === 'asc' ? r : -r;
+            });
+
+            rows.forEach(function (r) { tbody.appendChild(r); });
+        }
+
+        th.addEventListener('click', sort);
+        th.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); sort(); }
+        });
+    });
+})();
+</script>
+
+<script>
+// Live filtering of the rows already rendered by PHP (no page reload).
+(function () {
+    var rows = document.querySelectorAll('#recordTable tbody tr[data-status]');
+    if (!rows.length) { return; }
+
+    var q = document.getElementById('fSearch');
+    var st = document.getElementById('fStatus');
+    var pay = document.getElementById('fPayment');   // bookings only
+    var date = document.getElementById('fDate');
+    var shown = document.getElementById('fShown');
+    var none = document.getElementById('fNoMatch');
+
+    function apply() {
+        var term = q.value.trim().toLowerCase();
+        var count = 0;
+
+        rows.forEach(function (row) {
+            var ok =
+                (!st.value || row.dataset.status === st.value) &&
+                (!pay || !pay.value || row.dataset.payment === pay.value) &&
+                (!date.value || row.dataset.date === date.value) &&
+                (!term || row.textContent.toLowerCase().indexOf(term) !== -1);
+
+            row.hidden = !ok;
+            if (ok) { count++; }
+        });
+
+        shown.textContent = count;
+        if (none) { none.hidden = count !== 0; }
+    }
+
+    [q, st, pay, date].forEach(function (el) {
+        if (el) {
+            el.addEventListener('input', apply);
+            el.addEventListener('change', apply);
+        }
+    });
+
+    document.getElementById('fClear').addEventListener('click', function () {
+        [q, st, pay, date].forEach(function (el) { if (el) { el.value = ''; } });
+        apply();
+    });
+})();
+</script>
+
+<?php require __DIR__ . '/../app/views/partials/admin_end.php'; ?>
 
 </body>
 </html>

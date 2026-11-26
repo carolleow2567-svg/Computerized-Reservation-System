@@ -1,6 +1,6 @@
 -- =====================================================
--- M2 / M8: seat & route tables (extends 01_core_tables.sql)
--- Run AFTER 01_core_tables.sql. Does not change any existing table.
+-- M2 / M8: seat & route tables (extends 01_m7_create_tables.sql)
+-- Run AFTER 01_m7_create_tables.sql. Does not change any existing table.
 -- =====================================================
 USE computerized_reservation_system;
 

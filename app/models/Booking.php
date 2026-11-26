@@ -59,10 +59,7 @@ class Booking
                             CONCAT(
                                 bs.coach_number,
                                 '-',
-                                bs.seat_number,
-                                ' (',
-                                bs.class_name,
-                                ')'
+                                bs.seat_number
                             )
                             ORDER BY bs.seat_id
                             SEPARATOR ', '
@@ -105,6 +102,7 @@ class Booking
 
                     t.train_number,
                     t.train_name,
+                    t.train_type,
 
                     o.station_name AS origin_name,
                     d.station_name AS destination_name,

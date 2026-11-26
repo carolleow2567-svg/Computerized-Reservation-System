@@ -110,129 +110,17 @@ $totalBookings = count($bookings);
 
     <title>Manage Bookings | CRS Admin</title>
 
-    <link rel="stylesheet" href="assets/css/trains.css">
+    <link rel="stylesheet" href="assets/css/m7.css?v=<?= (int) @filemtime(__DIR__ . '/assets/css/m7.css') ?>">
 
-    <style>
-        .booking-dialog {
-            width: min(850px, 92%);
-            max-height: 85vh;
-            overflow-y: auto;
-
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-
-            margin: 0;
-            border: none;
-            border-radius: 12px;
-            padding: 28px;
-
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
-        }
-
-        .booking-dialog::backdrop {
-            background: rgba(0, 0, 0, 0.55);
-        }
-
-        .booking-dialog-header {
-            position: sticky;
-            top: 0;
-            background: #ffffff;
-            padding-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .booking-dialog-header h2 {
-            margin: 0;
-        }
-
-        .booking-section {
-            margin-top: 22px;
-        }
-
-        .booking-section h3 {
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 8px;
-            margin-bottom: 12px;
-        }
-
-        .booking-info-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 15px;
-        }
-
-        .booking-info-item {
-            padding: 10px;
-            background: #f7f7f7;
-            border-radius: 6px;
-            overflow-wrap: anywhere;
-        }
-
-        .booking-info-item small {
-            display: block;
-            color: #666;
-            margin-bottom: 5px;
-        }
-
-        .booking-passenger {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 12px;
-        }
-
-        .booking-dialog-actions {
-            position: sticky;
-            top: 0;
-            background: #ffffff;
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 25px;
-        }
-
-        .btn-view {
-            display: inline-block;
-            padding: 7px 12px;
-            background: #2563eb;
-            color: white;
-            text-decoration: none;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .btn-close {
-            position: sticky;
-            padding: 8px 16px;
-            background: #666;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        @media (max-width: 600px) {
-            .booking-info-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .booking-dialog {
-                padding: 18px;
-            }
-        }
-    </style>
 </head>
 
 <body>
 
-<div class="container">
+<?php
+$adminActive = 'bookings';
+$adminCrumb  = 'Manage Bookings';
+require __DIR__ . '/../app/views/partials/admin_start.php';
+?>
 
     <?php if (!empty($_SESSION['success'])): ?>
         <div class="success-message">
@@ -255,55 +143,50 @@ $totalBookings = count($bookings);
         </div>
     </header>
 
-    <section class="table-section">
+    <section class="table-section" aria-label="Search and filters">
+        <div class="toolbar">
+            <div class="grow">
+                <label for="fSearch">Search</label>
+                <input id="fSearch" type="search" autocomplete="off"
+                    placeholder="Reference, passenger, email or train">
+            </div>
+            <div>
+                <label for="fStatus">Booking status</label>
+                <select id="fStatus">
+                    <option value="">All</option>
+                    <?php foreach ($allowedStatuses as $status): ?>
+                        <option value="<?= e($status) ?>"><?= e(ucfirst($status)) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div>
+                <label for="fPayment">Payment status</label>
+                <select id="fPayment">
+                    <option value="">All</option>
+                    <?php foreach ($allowedPaymentStatuses as $payment): ?>
+                        <option value="<?= e($payment) ?>"><?= e(ucfirst($payment)) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div>
+                <label for="fDate">Departure date</label>
+                <input id="fDate" type="date">
+            </div>
+            <button type="button" class="btn-secondary" id="fClear">Clear</button>
+        </div>
+        <div class="filter-count"><span id="fShown"><?= count($bookings) ?></span> booking(s) found</div>
+    </section>
+
+    <section class="table-section card-flush" aria-label="Booking records">
 
         <div class="table-heading">
             <h2>Booking Records</h2>
             <span>Total Bookings: <?= count($bookings) ?></span>
         </div>
 
-        <form method="GET" class="filter-form">
-
-            <input
-                type="text"
-                name="search"
-                placeholder="Search reference, passenger, email or train"
-                value="<?= e($search) ?>"
-            >
-
-            <select name="status">
-                <option value="">All Booking Statuses</option>
-                <?php foreach ($allowedStatuses as $status): ?>
-                    <option value="<?= e($status) ?>"
-                        <?= $status === $statusFilter ? 'selected' : '' ?>>
-                        <?= e(ucfirst($status)) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-
-            <select name="payment_status">
-                <option value="">All Payment Statuses</option>
-                <?php foreach ($allowedPaymentStatuses as $payment): ?>
-                    <option  value="<?= e($payment) ?>"
-                        <?= $payment === $paymentFilter ? 'selected' : '' ?>>
-                        <?= e(ucfirst($payment)) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-
-            <input
-                type="date"
-                name="departure_date"
-                value="<?= e($dateFilter) ?>">
-
-            <button type="submit" class="btn-primary">Apply Filters</button>
-
-            <a href="bookings.php" class="btn-edit">Reset</a>
-        </form>
-
         <div class="table-wrapper">
 
-            <table>
+            <table id="recordTable">
 
                 <thead>
                     <tr>
@@ -311,11 +194,11 @@ $totalBookings = count($bookings);
                         <th>Passenger</th>
                         <th>Train</th>
                         <th>Route</th>
-                        <th>Departure</th>
+                        <th data-sortable>Departs</th>
                         <th>Seats-Coach Class</th>
                         <th>Payment</th>
                         <th>Booking</th>
-                        <th>Cancellation & Refund</th>
+                        <th>Refund</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -338,9 +221,11 @@ $totalBookings = count($bookings);
                         $dialogId = 'booking-dialog-' . (int)$booking['booking_id'];
                         ?>
 
-                        <tr>
+                        <tr data-status="<?= e($booking['booking_status']) ?>"
+                            data-payment="<?= e($booking['payment_status']) ?>"
+                            data-date="<?= e(date('Y-m-d', strtotime($booking['departure_datetime']))) ?>">
 
-                            <td>
+                            <td class="b">
                                 <?= e($booking['booking_reference']) ?>
                             </td>
 
@@ -370,12 +255,17 @@ $totalBookings = count($bookings);
 
                             <td>
                                 <?= e($booking['origin_name']) ?>
-                                →
+                                <br>&nbsp;→
                                 <?= e($booking['destination_name']) ?>
                             </td>
 
-                            <td>
-                                <?= e($booking['departure_datetime']) ?>
+                            <td data-value="<?= e($booking['departure_datetime']) ?>">
+                                <?php if ($booking): ?>
+                                    <?= e(date('H:i', strtotime($booking['departure_datetime']))) ?>
+                                    <br><small><?= e(date('d M Y', strtotime($booking['departure_datetime']))) ?></small>
+                                <?php else: ?>
+                                    <span class="mut">&mdash;</span>
+                                <?php endif; ?>
                             </td>
 
                             <td>
@@ -383,7 +273,9 @@ $totalBookings = count($bookings);
                             </td>
 
                             <td>
-                                <?= e(ucfirst($booking['payment_status'])) ?>
+                                <span class="schedule-status pay-<?= e($booking['payment_status']) ?>">
+                                    <?= e(ucfirst($booking['payment_status'])) ?>
+                                </span>
                             </td>
 
                             <td>
@@ -397,6 +289,7 @@ $totalBookings = count($bookings);
                             </td>
 
                             <td>
+                                <div class="row-actions">
                                 <button
                                     type="button"
                                     class="btn-view"
@@ -413,11 +306,12 @@ $totalBookings = count($bookings);
                                 <?php if ($booking['booking_status'] !== 'cancelled'): ?>
                                     <a
                                         href="booking-cancel.php?id=<?= (int)$booking['booking_id'] ?>&action=cancel"
-                                        class="btn-edit"
+                                        class="btn-edit danger"
                                         onclick="return confirm('Are you sure you want to cancel this booking?');">
                                         Cancel
                                     </a>
                                 <?php endif; ?>
+                                </div>
                             </td>
 
                         </tr>
@@ -432,9 +326,103 @@ $totalBookings = count($bookings);
 
         </div>
 
+        <div class="empty" id="fNoMatch" hidden>
+            <div class="b">No records found</div>
+            Adjust the search or filters.
+        </div>
+
     </section>
 
-</div>
+    <script>
+// Click a header marked data-sortable to sort the table by that column.
+(function () {
+    document.querySelectorAll('th[data-sortable]').forEach(function (th) {
+        th.setAttribute('data-sort', 'none');
+        th.tabIndex = 0;
+
+        function sort() {
+            var table = th.closest('table');
+            var tbody = table.tBodies[0];
+            var col = th.cellIndex;
+            var dir = th.getAttribute('data-sort') === 'asc' ? 'desc' : 'asc';
+
+            table.querySelectorAll('th[data-sortable]').forEach(function (h) {
+                h.setAttribute('data-sort', 'none');
+            });
+            th.setAttribute('data-sort', dir);
+
+            var rows = Array.prototype.slice.call(tbody.rows).filter(function (r) {
+                return r.cells.length > col;      // skip the "no records" row
+            });
+
+            function val(row) {
+                var c = row.cells[col];
+                return (c.getAttribute('data-value') || c.textContent).trim();
+            }
+
+            rows.sort(function (a, b) {
+                var r = val(a).localeCompare(val(b), undefined, {numeric: true, sensitivity: 'base'});
+                return dir === 'asc' ? r : -r;
+            });
+
+            rows.forEach(function (r) { tbody.appendChild(r); });
+        }
+
+        th.addEventListener('click', sort);
+        th.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); sort(); }
+        });
+    });
+})();
+</script>
+
+<script>
+// Live filtering of the rows already rendered by PHP (no page reload).
+(function () {
+    var rows = document.querySelectorAll('#recordTable tbody tr[data-status]');
+    if (!rows.length) { return; }
+
+    var q = document.getElementById('fSearch');
+    var st = document.getElementById('fStatus');
+    var pay = document.getElementById('fPayment');   // bookings only
+    var date = document.getElementById('fDate');
+    var shown = document.getElementById('fShown');
+    var none = document.getElementById('fNoMatch');
+
+    function apply() {
+        var term = q.value.trim().toLowerCase();
+        var count = 0;
+
+        rows.forEach(function (row) {
+            var ok =
+                (!st.value || row.dataset.status === st.value) &&
+                (!pay || !pay.value || row.dataset.payment === pay.value) &&
+                (!date.value || row.dataset.date === date.value) &&
+                (!term || row.textContent.toLowerCase().indexOf(term) !== -1);
+
+            row.hidden = !ok;
+            if (ok) { count++; }
+        });
+
+        shown.textContent = count;
+        if (none) { none.hidden = count !== 0; }
+    }
+
+    [q, st, pay, date].forEach(function (el) {
+        if (el) {
+            el.addEventListener('input', apply);
+            el.addEventListener('change', apply);
+        }
+    });
+
+    document.getElementById('fClear').addEventListener('click', function () {
+        [q, st, pay, date].forEach(function (el) { if (el) { el.value = ''; } });
+        apply();
+    });
+})();
+</script>
+
+<?php require __DIR__ . '/../app/views/partials/admin_end.php'; ?>
 
 
 <?php if (!empty($bookings)): ?>
@@ -470,34 +458,24 @@ $totalBookings = count($bookings);
 
                 <h3>Booking Information</h3>
 
-                <div class="booking-info-grid">
+                <dl class="dl">
 
-                    <div class="booking-info-item">
-                        <small>Booking Reference</small>
-                        <?= e($details['booking_reference']) ?>
-                    </div>
+                    <dt>Booking Reference</dt>
+<dd><?= e($details['booking_reference']) ?></dd>
 
-                    <div class="booking-info-item">
-                        <small>Booking Date</small>
-                        <?= e($details['booking_date']) ?>
-                    </div>
+                    <dt>Booking Date</dt>
+<dd><?= e($details['booking_date']) ?></dd>
 
-                    <div class="booking-info-item">
-                        <small>Booked By</small>
-                        <?= e($details['account_name']) ?>
-                    </div>
+                    <dt>Booked By</dt>
+<dd><?= e($details['account_name']) ?></dd>
 
-                    <div class="booking-info-item">
-                        <small>Account Email</small>
-                        <?= e($details['account_email']) ?>
-                    </div>
+                    <dt>Account Email</dt>
+<dd><?= e($details['account_email']) ?></dd>
 
-                    <div class="booking-info-item">
-                        <small>Account Phone</small>
-                        <?= e($details['account_phone']) ?>
-                    </div>
+                    <dt>Account Phone</dt>
+<dd><?= e($details['account_phone']) ?></dd>
 
-                </div>
+                </dl>
 
             </div>
 
@@ -516,27 +494,19 @@ $totalBookings = count($bookings);
                                 <?= e($passenger['passenger_name']) ?>
                             </strong>
 
-                            <div class="booking-info-grid">
+                            <dl class="dl">
 
-                                <div class="booking-info-item">
-                                    <small>Email</small>
-                                    <?= e($passenger['passenger_email']) ?>
-                                </div>
+                                <dt>Email</dt>
+<dd><?= e($passenger['passenger_email']) ?></dd>
 
-                                <div class="booking-info-item">
-                                    <small>Phone</small>
-                                    <?= e($passenger['passenger_phone']) ?>
-                                </div>
+                                <dt>Phone</dt>
+<dd><?= e($passenger['passenger_phone']) ?></dd>
 
-                                <div class="booking-info-item">
-                                    <small>IC Number (Masked)</small>
-                                    <?= e(maskIC($passenger['passenger_ic'])) ?>
-                                </div>
+                                <dt>IC Number (Masked)</dt>
+<dd><?= e(maskIC($passenger['passenger_ic'])) ?></dd>
 
-                                <div class="booking-info-item">
-                                    <small>Seat Assignment</small>
-
-                                    <?php if (!empty($passenger['seat_number'])): ?>
+                                <dt>Seat Assignment</dt>
+<dd><?php if (!empty($passenger['seat_number'])): ?>
 
                                         <?= e($passenger['coach_number']) ?>
                                         -
@@ -546,18 +516,14 @@ $totalBookings = count($bookings);
 
                                         Not assigned
 
-                                    <?php endif; ?>
-                                </div>
+                                    <?php endif; ?></dd>
 
-                                <div class="booking-info-item">
-                                    <small>Coach Class</small>
-
-                                    <?= !empty($passenger['class_name'])
+                                <dt>Coach Class</dt>
+<dd><?= !empty($passenger['class_name'])
                                         ? e($passenger['class_name'])
-                                        : 'Not assigned' ?>
-                                </div>
+                                        : 'Not assigned' ?></dd>
 
-                            </div>
+                            </dl>
 
                         </div>
 
@@ -575,36 +541,29 @@ $totalBookings = count($bookings);
 
                 <h3>Train and Journey Details</h3>
 
-                <div class="booking-info-grid">
+                <dl class="dl">
 
-                    <div class="booking-info-item">
-                        <small>Train Number</small>
-                        <?= e($details['train_number']) ?>
-                    </div>
+                    <dt>Train Number</dt>
+<dd><?= e($details['train_number']) ?></dd>
 
-                    <div class="booking-info-item">
-                        <small>Train Name</small>
-                        <?= e($details['train_name']) ?>
-                    </div>
+                    <dt>Train Name</dt>
+<dd><?= e($details['train_name']) ?></dd>
 
-                    <div class="booking-info-item">
-                        <small>Route</small>
-                        <?= e($details['origin_name']) ?>
+                    <dt>Train Type</dt>
+<dd><?= e($details['train_type']) ?></dd>
+
+                    <dt>Route</dt>
+<dd><?= e($details['origin_name']) ?>
                         →
-                        <?= e($details['destination_name']) ?>
-                    </div>
+                        <?= e($details['destination_name']) ?></dd>
 
-                    <div class="booking-info-item">
-                        <small>Departure</small>
-                        <?= e($details['departure_datetime']) ?>
-                    </div>
+                    <dt>Departure</dt>
+<dd><?= e($details['departure_datetime']) ?></dd>
 
-                    <div class="booking-info-item">
-                        <small>Arrival</small>
-                        <?= e($details['arrival_datetime']) ?>
-                    </div>
+                    <dt>Arrival</dt>
+<dd><?= e($details['arrival_datetime']) ?></dd>
 
-                </div>
+                </dl>
 
             </div>
 
@@ -612,29 +571,21 @@ $totalBookings = count($bookings);
 
                 <h3>Payment and Refund Information</h3>
 
-                <div class="booking-info-grid">
+                <dl class="dl">
 
-                    <div class="booking-info-item">
-                        <small>Total Fare</small>
-                        RM <?= e(number_format((float)$details['total_amount'], 2)) ?>
-                    </div>
+                    <dt>Total Fare</dt>
+<dd>RM <?= e(number_format((float)$details['total_amount'], 2)) ?></dd>
 
-                    <div class="booking-info-item">
-                        <small>Payment Status</small>
-                        <?= e(ucfirst($details['payment_status'])) ?>
-                    </div>
+                    <dt>Payment Status</dt>
+<dd><span class="schedule-status pay-<?= e($details['payment_status']) ?>"><?= e(ucfirst($details['payment_status'])) ?></span></dd>
 
-                    <div class="booking-info-item">
-                        <small>Refund Amount</small>
-                        RM <?= e(number_format((float)$details['refund_amount'], 2)) ?>
-                    </div>
+                    <dt>Refund Amount</dt>
+<dd>RM <?= e(number_format((float)$details['refund_amount'], 2)) ?></dd>
 
-                    <div class="booking-info-item">
-                        <small>Refund Status</small>
-                        <?= e(ucfirst($details['refund_status'])) ?>
-                    </div>
+                    <dt>Refund Status</dt>
+<dd><?= e(ucfirst($details['refund_status'])) ?></dd>
 
-                </div>
+                </dl>
 
             </div>
 
@@ -642,30 +593,24 @@ $totalBookings = count($bookings);
 
                 <h3>Cancellation Information</h3>
 
-                <div class="booking-info-grid">
+                <dl class="dl">
 
-                    <div class="booking-info-item">
-                        <small>Cancellation Status</small>
-                        <?= $details['booking_status'] === 'cancelled'
+                    <dt>Cancellation Status</dt>
+<dd><?= $details['booking_status'] === 'cancelled'
                             ? 'Cancelled'
-                            : 'Not cancelled' ?>
-                    </div>
+                            : 'Not cancelled' ?></dd>
 
-                    <div class="booking-info-item">
-                        <small>Cancellation Date</small>
-                        <?= !empty($details['cancellation_date'])
+                    <dt>Cancellation Date</dt>
+<dd><?= !empty($details['cancellation_date'])
                             ? e($details['cancellation_date'])
-                            : 'Not applicable' ?>
-                    </div>
+                            : 'Not applicable' ?></dd>
 
-                    <div class="booking-info-item">
-                        <small>Cancellation Reason</small>
-                        <?= !empty($details['cancellation_reason'])
+                    <dt>Cancellation Reason</dt>
+<dd><?= !empty($details['cancellation_reason'])
                             ? e($details['cancellation_reason'])
-                            : 'Not provided' ?>
-                    </div>
+                            : 'Not provided' ?></dd>
 
-                </div>
+                </dl>
 
             </div>
 
@@ -681,7 +626,7 @@ $totalBookings = count($bookings);
 
                 <a
                     href="booking-edit.php?id=<?= e($details['booking_id']) ?>"
-                    class="btn-edit"
+                    class="btn-primary"
                 >
                     Edit Booking
                 </a>

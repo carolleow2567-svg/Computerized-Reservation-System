@@ -1,0 +1,928 @@
+/* RailMY admin design system (same tokens as the team prototype)
+   Used by: trains, schedules and bookings pages (M7).
+   Existing class names are kept so no PHP logic needs to change. */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+    --side: #161F2C;
+    --side2: #243245;
+    --teal: #0F766E;
+    --teal2: #0B5E58;
+    --tealbg: #DDF3F0;
+    --ink: #1B2430;
+    --mut: #55616F;
+    --line: #D9DFE6;
+    --bg: #EDF0F4;
+    --amber: #7A5000;
+    --amberbg: #FFF0C7;
+    --ok: #0F6B3F;
+    --okbg: #DCF2E5;
+    --bad: #A62A20;
+    --badbg: #FBE3E0;
+    --blue: #1D4E89;
+    --bluebg: #E1ECF8;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 14px/1.5 'IBM Plex Sans', system-ui, sans-serif;
+}
+
+a {
+    color: var(--teal);
+}
+
+:focus-visible {
+    outline: 3px solid #A8DAD5;
+    outline-offset: 2px;
+}
+
+h1, h2, h3, p {
+    margin: 0;
+}
+
+/* ===== Shell: sidebar + top bar ===== */
+
+.shell {
+    display: flex;
+    flex-wrap: wrap;
+    min-height: 100vh;
+}
+
+.side {
+    flex: 1 1 244px;
+    max-width: 100%;
+    background: var(--side);
+    color: #C9D3DF;
+    padding: 18px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+@media (min-width: 761px) {
+    .side {
+        flex: 0 0 244px;
+    }
+}
+
+.main {
+    flex: 999 1 560px;
+    min-width: 0;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 8px 16px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 17px;
+    text-decoration: none;
+}
+
+.sec {
+    padding: 14px 12px 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    color: #8E9CB0;
+}
+
+.side nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.ni {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 0 12px;
+    border-radius: 6px;
+    color: #C9D3DF;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.ni:hover {
+    background: var(--side2);
+    color: #fff;
+}
+
+.ni.on {
+    background: var(--teal);
+    color: #fff;
+}
+
+.tb {
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+    padding: 10px 24px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    justify-content: space-between;
+}
+
+.tb a {
+    text-decoration: none;
+}
+
+.tb a:hover {
+    text-decoration: underline;
+}
+
+.tb-user {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.tb-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--side);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+}
+
+.mut {
+    color: var(--mut);
+}
+
+.crumb {
+    color: var(--ink);
+}
+
+.role-tag {
+    display: inline-block;
+    padding: 1px 9px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    background: var(--bluebg);
+    color: var(--blue);
+}
+
+.b {
+    font-weight: 600;
+}
+
+/* Page area (replaces the old .container) */
+
+.pg,
+.container {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+}
+
+.page-header h1 {
+    font-size: 24px;
+    line-height: 1.25;
+    font-weight: 700;
+}
+
+.page-header p {
+    color: var(--mut);
+}
+
+/* ===== Buttons ===== */
+
+.btn-primary,
+.btn-secondary,
+.btn-view,
+.btn-close,
+.btn-cancel-confirm,
+.btn-dialog-close,
+.btn-deactivate {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 18px;
+    border-radius: 6px;
+    border: 1px solid var(--teal);
+    background: var(--teal);
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background: var(--teal2);
+    border-color: var(--teal2);
+}
+
+/* ghost buttons */
+.btn-secondary,
+.btn-view,
+.btn-close,
+.btn-dialog-close,
+.btn-edit {
+    background: #fff;
+    color: var(--ink);
+    border: 1px solid #AEB8C4;
+}
+
+.btn-secondary:hover,
+.btn-view:hover,
+.btn-close:hover,
+.btn-dialog-close:hover,
+.btn-edit:hover {
+    background: #F2F5F8;
+}
+
+/* Edit / Reset / Cancel links are ghost buttons */
+.btn-edit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 12px;
+    border-radius: 6px;
+    font: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* destructive */
+.btn-cancel-confirm {
+    background: var(--bad);
+    border-color: var(--bad);
+}
+
+.btn-cancel-confirm:hover {
+    background: #8A2018;
+    border-color: #8A2018;
+}
+
+/* row-level destructive actions are ghost buttons with red text (as in the prototype) */
+.btn-deactivate {
+    background: #fff;
+    color: var(--bad);
+    border: 1px solid #AEB8C4;
+    padding: 0 12px;
+}
+
+.btn-deactivate:hover {
+    background: var(--badbg);
+}
+
+.btn-view {
+    padding: 0 12px;
+}
+
+/* ===== Cards / tables ===== */
+
+.table-section,
+.form-section {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 18px;
+}
+
+.form-section {
+    max-width: 750px;
+}
+
+.table-heading {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.table-heading h2,
+.table-section h2 {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.table-section h2 {
+    margin-bottom: 12px;
+}
+
+.table-heading h2 {
+    margin-bottom: 0;
+}
+
+.table-heading span {
+    color: var(--mut);
+    font-size: 14px;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 900px;
+}
+
+#bookingTable,
+.table-wrapper table {
+    min-width: 900px;
+}
+
+th {
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    color: var(--mut);
+    padding: 12px;
+    background: #F5F7FA;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+}
+
+td {
+    white-space: nowrap;
+    padding: 8px 12px;
+    border-bottom: 1px solid #E8ECF1;
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+tbody tr:hover td {
+    background: #FAFBFC;
+}
+
+td small {
+    color: var(--mut);
+    font-size: 12px;
+}
+
+td .empty-cell,
+td.empty {
+    white-space: normal;
+}
+
+td .btn-edit,
+td .btn-view,
+td .btn-deactivate {
+    margin-right: 4px;
+}
+
+td .btn-edit.danger,
+.btn-edit.danger {
+    color: var(--bad);
+}
+
+td form {
+    display: inline;
+}
+
+.empty {
+    text-align: center;
+    color: var(--mut);
+    padding: 32px;
+}
+
+/* ===== Status tags ===== */
+
+.status,
+.schedule-status {
+    display: inline-block;
+    padding: 1px 9px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    background: #E7ECF2;
+    color: #2B3644;
+}
+
+.status.active,
+.schedule-status.completed,
+.schedule-status.confirmed {
+    background: var(--okbg);
+    color: var(--ok);
+}
+
+.status.inactive {
+    background: #E7ECF2;
+    color: #2B3644;
+}
+
+.status.maintenance,
+.schedule-status.delayed,
+.schedule-status.pending {
+    background: var(--amberbg);
+    color: var(--amber);
+}
+
+.schedule-status.scheduled {
+    background: var(--bluebg);
+    color: var(--blue);
+}
+
+.schedule-status.pay-paid {
+    background: var(--okbg);
+    color: var(--ok);
+}
+
+.schedule-status.pay-unpaid {
+    background: var(--amberbg);
+    color: var(--amber);
+}
+
+.schedule-status.pay-failed {
+    background: var(--badbg);
+    color: var(--bad);
+}
+
+.schedule-status.pay-refunded {
+    background: var(--bluebg);
+    color: var(--blue);
+}
+
+.schedule-status.cancelled {
+    background: var(--badbg);
+    color: var(--bad);
+}
+
+/* ===== Messages ===== */
+
+.success-message,
+.error-message {
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+.success-message {
+    background: var(--okbg);
+    color: var(--ok);
+}
+
+.error-message {
+    background: var(--badbg);
+    color: var(--bad);
+}
+
+.error-message ul {
+    margin: 8px 0 0 20px;
+}
+
+.error-message li {
+    margin-bottom: 4px;
+}
+
+.table-section .error-message,
+.form-section .error-message,
+.table-section .success-message,
+.form-section .success-message {
+    margin-bottom: 16px;
+}
+
+/* ===== Forms ===== */
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    color: var(--mut);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea,
+.filter-form input,
+.filter-form select {
+    width: 100%;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 1px solid #8C98A6;
+    border-radius: 6px;
+    background: #fff;
+    color: var(--ink);
+    font: inherit;
+}
+
+.form-group textarea {
+    padding: 10px 12px;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus,
+.filter-form input:focus,
+.filter-form select:focus {
+    outline: 3px solid #A8DAD5;
+    border-color: var(--teal);
+}
+
+.form-group input:disabled,
+.form-group select:disabled {
+    background: #F5F7FA;
+    color: var(--mut);
+    border-color: var(--line);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 14px;
+}
+
+.filter-field {
+    flex: 1 1 170px;
+}
+
+.filter-field-grow {
+    flex: 2 1 260px;
+}
+
+.filter-field label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    color: var(--mut);
+}
+
+.filter-form input,
+.filter-form select {
+    width: 100%;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 1px solid #8C98A6;
+    border-radius: 6px;
+    background: #fff;
+    color: var(--ink);
+    font: inherit;
+}
+
+.filter-form input:focus,
+.filter-form select:focus {
+    outline: 3px solid #A8DAD5;
+    border-color: var(--teal);
+}
+
+.filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.filter-count {
+    margin-top: 14px;
+    color: var(--mut);
+}
+
+/* row action buttons */
+.row-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 6px;
+}
+
+.row-actions form {
+    display: inline-flex;
+    margin: 0;
+}
+
+.row-actions .btn-edit,
+.row-actions .btn-view,
+.row-actions .btn-deactivate {
+    margin: 0;
+}
+
+/* prototype definition list used inside pop-ups */
+.dl {
+    margin: 0;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 8px 16px;
+}
+
+.dl dt {
+    color: var(--mut);
+}
+
+.dl dd {
+    margin: 0;
+    font-weight: 600;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+/* client-side search bar on the trains page */
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 14px;
+}
+
+.toolbar > div {
+    flex: 1 1 160px;
+}
+
+.toolbar > div.grow {
+    flex: 2 1 240px;
+}
+
+.toolbar label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    color: var(--mut);
+}
+
+.toolbar input,
+.toolbar select {
+    width: 100%;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 1px solid #8C98A6;
+    border-radius: 6px;
+    background: #fff;
+    color: var(--ink);
+    font: inherit;
+}
+
+.toolbar input:focus,
+.toolbar select:focus {
+    outline: 3px solid #A8DAD5;
+    border-color: var(--teal);
+}
+
+.card-flush {
+    padding: 0;
+}
+
+.card-flush .table-heading {
+    padding: 16px 18px 0;
+}
+
+/* ===== Dialogs (booking details / cancel) ===== */
+
+.booking-dialog,
+.train-dialog,
+.cancel-dialog {
+    border: none;
+    border-radius: 8px;
+    background: #fff;
+    color: var(--ink);
+    padding: 24px;
+    max-height: 92vh;
+    overflow-y: auto;
+}
+
+.booking-dialog {
+    width: min(640px, 92%);
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+}
+
+.cancel-dialog {
+    width: min(500px, 92%);
+}
+
+.booking-dialog::backdrop,
+.train-dialog::backdrop,
+.cancel-dialog::backdrop {
+    background: rgba(22, 31, 44, .6);
+}
+
+.booking-dialog-header {
+    position: sticky;
+    top: -24px;
+    z-index: 1;
+    background: #fff;
+    padding: 0 0 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 8px;
+}
+
+.booking-dialog-header h2,
+.cancel-dialog h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.cancel-dialog p {
+    margin-top: 10px;
+    color: var(--mut);
+}
+
+.booking-section {
+    margin-top: 22px;
+}
+
+.booking-section h3 {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    color: var(--mut);
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+}
+
+.booking-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.booking-section > .booking-info-grid {
+    margin-top: 0;
+}
+
+.booking-info-item {
+    padding: 10px 12px;
+    background: #F5F7FA;
+    border: 1px solid #E8ECF1;
+    border-radius: 6px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.booking-info-item small {
+    display: block;
+    color: var(--mut);
+    font-weight: 400;
+    margin-bottom: 4px;
+}
+
+.booking-passenger {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 12px;
+}
+
+.booking-dialog-actions {
+    position: sticky;
+    bottom: -24px;
+    background: #fff;
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 24px;
+    padding-top: 12px;
+}
+
+.cancel-dialog textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 10px 12px;
+    margin-top: 8px;
+    border: 1px solid #8C98A6;
+    border-radius: 6px;
+    font: inherit;
+    resize: vertical;
+}
+
+.cancel-dialog textarea:focus {
+    outline: 3px solid #A8DAD5;
+    border-color: var(--teal);
+}
+
+.dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.current-cancellation {
+    margin: 4px 0 16px;
+    padding: 12px;
+    background: var(--amberbg);
+    color: var(--amber);
+    border-radius: 6px;
+}
+
+.current-cancellation h3 {
+    font-size: 15px;
+    margin-bottom: 6px;
+}
+
+/* ===== Small screens ===== */
+
+@media (max-width: 760px) {
+    .tb,
+    .pg,
+    .container {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .page-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 600px) {
+    .booking-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .booking-dialog,
+    .cancel-dialog {
+        padding: 18px;
+    }
+}
+
+/* hidden attribute must win over display rules */
+[hidden] {
+    display: none !important;
+}
+
+.booking-passenger strong {
+    display: block;
+    margin-bottom: 8px;
+}
+
+th[data-sort] {
+    cursor: pointer;
+    user-select: none;
+}
+th[data-sort]:hover {
+    color: var(--ink);
+}
+th[data-sort]::after {
+    content: " \2195";
+    opacity: .4;
+}
+th[data-sort="asc"]::after {
+    content: " \2191";
+    opacity: 1;
+}
+th[data-sort="desc"]::after {
+    content: " \2193";
+    opacity: 1;
+}

@@ -4,12 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Train | CRS Admin</title>
-    <link rel="stylesheet" href="assets/css/trains.css">
+    <link rel="stylesheet" href="assets/css/m7.css?v=<?= (int) @filemtime(__DIR__ . '/../../../public/assets/css/m7.css') ?>">
 </head>
 
 <body>
 
-<div class="container">
+<?php
+$adminActive = 'trains';
+$adminCrumb  = 'Edit Train';
+require __DIR__ . '/../partials/admin_start.php';
+?>
 
     <header class="page-header">
         <div>
@@ -82,7 +86,7 @@
 
     </section>
 
-</div>
+<?php require __DIR__ . '/../partials/admin_end.php'; ?>
 
 </body>
 </html>
