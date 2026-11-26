@@ -1,0 +1,607 @@
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f3f5f9;
+    color: #102e5c;
+    font-size: 13px;
+}
+
+.login-layout {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 46% 54%;
+}
+
+/* LEFT PANEL */
+.login-left {
+    background:
+        linear-gradient(
+            rgba(10, 35, 75, 0.75),
+            rgba(10, 35, 75, 0.85)
+        ),
+        #102e5c;
+    color: white;
+    padding: 40px 36px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.login-left h1 {
+    font-size: 28px;
+    margin-bottom: 15px;
+}
+
+.login-left p {
+    color: #dce6f5;
+    line-height: 1.7;
+    font-size: 13px;
+}
+
+/* RIGHT PANEL */
+.login-right {
+    background: #f3f5f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+}
+
+.login-card {
+    background: white;
+    width: 100%;
+    max-width: 440px;
+    padding: 30px 28px;
+    border: 1px solid #d3deed;
+    border-radius: 9px;
+}
+
+.login-card h2 {
+    color: #102e5c;
+    font-size: 25px;
+    margin-top: 0;
+}
+
+.login-card p {
+    color: #66758a;
+}
+
+.login-card label {
+    display: block;
+    margin: 16px 0 7px;
+    font-weight: bold;
+}
+
+.login-card input {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid #c6d2e2;
+    border-radius: 5px;
+    font-size: 13px;
+}
+
+.login-card input:focus {
+    outline: none;
+    border-color: #174d91;
+}
+
+.login-card button {
+    width: 100%;
+    margin-top: 22px;
+    padding: 12px;
+    background: #f6a21a;
+    color: #102e5c;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.login-card button:hover {
+    background: #e8930b;
+}
+
+.login-error {
+    background: #fff0ef;
+    border: 1px solid #ffe0dc;
+    color: #b42318;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 650px) {
+    .login-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .login-left {
+        padding: 30px 25px;
+    }
+
+    .login-right {
+        padding: 25px 15px;
+    }
+}
+
+/* =========================
+   PASSENGER HOME DASHBOARD
+========================= */
+
+body.home-page {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f3f5f9;
+    color: #102e5c;
+    font-size: 13px;
+}
+
+/* NAVIGATION BAR */
+
+.home-navbar {
+    background: #102e5c;
+    color: white;
+    padding: 18px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.home-brand {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.home-brand span {
+    color: #ffa51f;
+}
+
+.logout-btn {
+    background: #f6a21a;
+    color: #102e5c;
+    text-decoration: none;
+    padding: 10px 18px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.logout-btn:hover {
+    background: #e8930b;
+}
+
+/* MAIN CONTENT */
+
+.home-container {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 0 25px;
+}
+
+/* WELCOME SECTION */
+
+.welcome-card {
+    background: white;
+    border: 1px solid #d3deed;
+    border-radius: 9px;
+    padding: 30px;
+    margin-bottom: 30px;
+}
+
+.welcome-card h1 {
+    font-size: 28px;
+    margin-top: 0;
+    color: #102e5c;
+}
+
+.welcome-card p {
+    color: #66758a;
+    line-height: 1.7;
+}
+
+.welcome-card strong {
+    color: #e79518;
+}
+
+/* DASHBOARD CARDS */
+
+.dashboard-title {
+    font-size: 22px;
+    margin-bottom: 20px;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.dashboard-card {
+    background: white;
+    border: 1px solid #d3deed;
+    border-radius: 9px;
+    padding: 25px;
+    transition: transform 0.2s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-4px);
+}
+
+.dashboard-card h3 {
+    color: #102e5c;
+    font-size: 17px;
+    margin-top: 0;
+}
+
+.dashboard-card p {
+    color: #66758a;
+    line-height: 1.6;
+}
+
+/* FOOTER */
+
+.home-footer {
+    text-align: center;
+    color: #66758a;
+    padding: 30px 15px;
+    margin-top: 40px;
+    border-top: 1px solid #d3deed;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 700px) {
+    .home-navbar {
+        padding: 16px 20px;
+    }
+
+    .home-container {
+        margin: 25px auto;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .welcome-card h1 {
+        font-size: 23px;
+    }
+}
+
+/* =================================
+   PROFESSIONAL CRS DESIGN UPGRADE
+================================= */
+
+:root {
+    --navy: #102e5c;
+    --navy-light: #174d91;
+    --orange: #f6a21a;
+    --orange-dark: #e8930b;
+    --background: #f3f5f9;
+    --white: #ffffff;
+    --text-muted: #66758a;
+    --border: #dce4ef;
+}
+
+/* GENERAL */
+
+body {
+    background: var(--background);
+    color: var(--navy);
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.6;
+}
+
+/* =================================
+   LOGIN PAGE
+================================= */
+
+.login-layout {
+    min-height: 100vh;
+    background: var(--background);
+}
+
+/* Left welcome panel */
+
+.login-left {
+    position: relative;
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            circle at 90% 15%,
+            rgba(246, 162, 26, 0.20),
+            transparent 35%
+        ),
+        linear-gradient(
+            135deg,
+            #102e5c,
+            #174d91
+        );
+
+    padding: 55px 45px;
+}
+
+.login-left::after {
+    content: "";
+    position: absolute;
+    width: 320px;
+    height: 320px;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 50%;
+    right: -120px;
+    bottom: -120px;
+}
+
+.login-left h1 {
+    font-size: 34px;
+    letter-spacing: 1px;
+    color: white;
+}
+
+.login-left h1 span {
+    color: var(--orange);
+}
+
+.login-left h2 {
+    font-size: 30px;
+    line-height: 1.3;
+    max-width: 450px;
+    margin-top: 35px;
+    color: white;
+}
+
+.login-left p {
+    max-width: 420px;
+    color: #dce6f5;
+    font-size: 14px;
+    line-height: 1.9;
+}
+
+/* Login form card */
+
+.login-card {
+    max-width: 460px;
+    padding: 42px 38px;
+    border: none;
+    border-radius: 16px;
+
+    box-shadow:
+        0 15px 45px rgba(16, 46, 92, 0.10);
+}
+
+.login-card h2 {
+    font-size: 27px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.login-card p {
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.login-card label {
+    font-size: 13px;
+    color: var(--navy);
+    margin-top: 20px;
+}
+
+.login-card input {
+    padding: 13px 15px;
+    background: #fbfcfe;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    transition: border 0.2s, box-shadow 0.2s;
+}
+
+.login-card input:focus {
+    border-color: var(--navy-light);
+    box-shadow: 0 0 0 3px rgba(23, 77, 145, 0.10);
+}
+
+.login-card button {
+    padding: 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    letter-spacing: 0.3px;
+
+    background: var(--orange);
+    transition: background 0.2s, transform 0.2s;
+}
+
+.login-card button:hover {
+    background: var(--orange-dark);
+    transform: translateY(-2px);
+}
+
+/* =================================
+   PASSENGER DASHBOARD
+================================= */
+
+.home-navbar {
+    padding: 20px 6%;
+    box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+}
+
+.home-brand {
+    font-size: 25px;
+    letter-spacing: 0.5px;
+}
+
+.logout-btn {
+    padding: 10px 22px;
+    border-radius: 7px;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.logout-btn:hover {
+    transform: translateY(-2px);
+}
+
+/* Main content */
+
+.home-container {
+    max-width: 1150px;
+    margin: 45px auto;
+}
+
+/* Welcome card */
+
+.welcome-card {
+    position: relative;
+    overflow: hidden;
+
+    padding: 38px;
+    border: none;
+    border-radius: 16px;
+
+    background:
+        linear-gradient(
+            120deg,
+            #ffffff 65%,
+            #eef4fc
+        );
+
+    box-shadow:
+        0 10px 30px rgba(16, 46, 92, 0.06);
+}
+
+.welcome-card h1 {
+    font-size: 30px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.welcome-card p {
+    font-size: 14px;
+}
+
+.welcome-card strong {
+    display: inline-block;
+    margin-top: 5px;
+    color: var(--orange-dark);
+}
+
+/* Dashboard heading */
+
+.dashboard-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 22px;
+}
+
+/* Dashboard cards */
+
+.dashboard-grid {
+    gap: 24px;
+}
+
+.dashboard-card {
+    position: relative;
+    overflow: hidden;
+
+    padding: 30px;
+    border: 1px solid #e8edf5;
+    border-radius: 14px;
+
+    box-shadow:
+        0 8px 25px rgba(16, 46, 92, 0.05);
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        border-color 0.25s ease;
+}
+
+.dashboard-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--orange);
+}
+
+.dashboard-card:hover {
+    transform: translateY(-6px);
+    border-color: #cbd9ed;
+
+    box-shadow:
+        0 15px 35px rgba(16, 46, 92, 0.12);
+}
+
+.dashboard-card h3 {
+    font-size: 18px;
+    margin-bottom: 12px;
+}
+
+.dashboard-card p {
+    font-size: 13px;
+    line-height: 1.8;
+    margin-bottom: 0;
+}
+
+/* Footer */
+
+.home-footer {
+    font-size: 12px;
+    background: #ffffff;
+    border-top: 1px solid var(--border);
+}
+
+/* =================================
+   RESPONSIVE DESIGN
+================================= */
+
+@media (max-width: 700px) {
+
+    .login-left {
+        padding: 35px 25px;
+    }
+
+    .login-left h1 {
+        font-size: 28px;
+    }
+
+    .login-left h2 {
+        font-size: 24px;
+        margin-top: 20px;
+    }
+
+    .login-card {
+        padding: 30px 24px;
+        border-radius: 12px;
+    }
+
+    .home-navbar {
+        padding: 16px 20px;
+    }
+
+    .home-container {
+        margin: 25px auto;
+        padding: 0 18px;
+    }
+
+    .welcome-card {
+        padding: 25px;
+    }
+
+    .welcome-card h1 {
+        font-size: 24px;
+    }
+
+    .dashboard-title {
+        font-size: 21px;
+    }
+
+    .dashboard-card {
+        padding: 25px;
+    }
+}
